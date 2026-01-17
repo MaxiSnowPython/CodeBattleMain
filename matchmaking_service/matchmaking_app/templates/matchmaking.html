@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Поиск игры</title>
+    <style>
+        #status { color: blue; font-weight: bold; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Мировая Арена 2026</h1>
+    
+    <div id="search-block">
+        <button id="find-btn" onclick="startSearch()">НАЧАТЬ ПОИСК ИГРОКА</button>
+    </div>
+
+    <div id="status-block" class="hidden">
+        <p id="status">Ищем противника...</p>
+        <div class="loader"></div> <!-- Можно добавить крутилку -->
+    </div>
+
+    <script>
+        let socket = null;
+        const token = "{{ token }}"; // Берем из Django context
+
+        function startSearch() {
+            // 1. Показываем статус поиска, скрываем кнопку
+            document.getElementById('search-block').classList.add('hidden');
+            document.getElementById('status-block').classList.remove('hidden');
+
+            // 2. Открываем сокет к нашему Consumer
+            socket = new WebSocket(`ws://127.0.0.1:8001/ws/match/?token=${token}`);
+
+            socket.onopen = function(e) {
+                console.log("Соединение установлено. Отправляем запрос на поиск...");
+                // 3. Шлем сигнал "ищи" (receive в Consumer поймает это)
+                socket.send(JSON.stringify({'action': 'find_match'}));
+            };
+
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
+                if (data.action === "redirect") {
+                    document.getElementById('status').innerText = "Матч найден! Переходим...";
+                    // 4. Тот самый перекид на Сервис Игры
+                    window.location.href = data.url;
+                }
+            };
+
+            socket.onclose = function(e) {
+                console.log("Соединение закрыто");
+                // Если сокет закрылся сам (ошибка), возвращаем кнопку
+                alert("Ошибка связи или неверный токен");
+                location.reload();
+            };
+        }
+    </script>
+</body>
+</html>

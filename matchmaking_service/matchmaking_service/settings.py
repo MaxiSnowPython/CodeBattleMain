@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3dlc=!di*!h$5mf00no+(e0)1)yix&o@jxl#*pra_74)*!6s-1'
+SECRET_KEY = 'django-insecure-$2p@0f_uh+mmw+2s@3@+dxqw)%wej9ls0y90iqtkqj6_^0io^8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'matchmaking_app',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,13 @@ TEMPLATES = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {"hosts": [('127.0.0.1', 6379)]},
+    },
+}
+ASGI_APPLICATION = 'matchmaking_service.asgi.application'
 WSGI_APPLICATION = 'matchmaking_service.wsgi.application'
 
 
