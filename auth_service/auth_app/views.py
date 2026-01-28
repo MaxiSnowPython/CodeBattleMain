@@ -5,8 +5,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
-# Create your views here.
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
+# Create your views here.
+@method_decorator(csrf_exempt, name="dispatch")
 class RegView(FormView):
     template_name = "reg_form.html"
     form_class = UserCreationForm
@@ -20,7 +23,7 @@ class RegView(FormView):
         return redirect(f"http://127.0.0.1:8001/match/hub/?token={access_token}")
     def form_invalid(self, form):
         return super.form_invalid(form)
-    
+@method_decorator(csrf_exempt, name="dispatch")    
 class LogView(LoginView):
     template_name = 'log_form.html'
     def form_valid(self, form):

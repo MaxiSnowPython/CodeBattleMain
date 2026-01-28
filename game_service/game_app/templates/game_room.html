@@ -1,16 +1,210 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Игровая комната</title>
+    <meta charset="UTF-8">
+    <title>Coding Battle - Игровая комната</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .players {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .player {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+            color: black;
+            font-family: monospace;
+            font-size: 24px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .current-user {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: #fafafa;
+        }
+        .button {
+            background: #28a745;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 0 0;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover { background: #218838; }
+        .leave-btn { background: #6c757d; }
+        .leave-btn:hover { background: #545b62; }
+        
+        .result-panel {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
-    <h1>Добро пожаловать в игру!</h1>
-    <p>ID вашей комнаты: <strong>{{ match_id }}</strong></p>
-    <p>Вы вошли как: {{ user.username }}</p>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Coding Battle — Комната #{{ room.id }}</h1>
 
-    <div id="game-area" style="border: 2px solid black; height: 300px;">
-        <!-- Тут будет твоя игра -->
-        <p>Ожидание действий противника...</p>
+            <div class="players">
+                <div class="player {% if user.id == room.player1.id %}current-user{% endif %}">
+                    👤 {{ room.player1.username|default:"Ожидание..." }}
+                    {% if user.id == room.player1.id %}
+                        <br><small>👑 Это вы!</small>
+                    {% endif %}
+                </div>
+
+                <div style="font-size: 24px; color: #333;">⚔️ VS ⚔️</div>
+
+                <div class="player {% if user.id == room.player2.id %}current-user{% endif %}">
+                    👤 {{ room.player2.username|default:"Ожидание..." }}
+                    {% if user.id == room.player2.id %}
+                        <br><small>👑 Это вы!</small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if room.is_finished %}
+            {% if room.winner_name == username %}
+                <div class="game-finished winner">
+                    🎉 Поздравляем! Вы выиграли!
+                    <br><small>Вы решили задачу первым!</small>
+                </div>
+            {% else %}
+                <div class="game-finished loser">
+                    😔 Игра окончена. Победил: {{ room.winner_name }}
+                    <br><small>В следующий раз повезёт больше!</small>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="game-container">
+            <div class="panel">
+                <h2>📝 {{ room.task.title }}</h2>
+                <p>{{ room.task.description|linebreaks }}</p>
+                <hr>
+                <p><strong>Ожидаемый результат:</strong> <code>{{ room.task.expected_output }}</code></p>
+            </div>
+
+           <div class="panel">
+    <h3>💻 Ваше решение</h3>
+
+    {% if room.is_finished %}
+        <textarea readonly rows="10" cols="60">
+{{ room.task.initial_code }}
+        </textarea>
+        <p style="color: gray;">Игра завершена. Код заблокирован.</p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+
+            <textarea name="code" rows="12" cols="70">
+def solution(nums):
+    return sum(nums)
+            </textarea>
+
+            <br><br>
+
+            <button type="submit" name="submit_solution" class="button">
+                🚀 Отправить решение
+            </button>
+
+            <button type="submit" name="leave" class="button leave-btn">
+                🚪 Покинуть комнату
+            </button>
+        </form>
+    {% endif %}
+<script>
+const matchId = "{{ match_id }}";
+const myUsername = "{{ user.username }}";
+let gameOver = false;
+
+setInterval(async () => {
+    if (gameOver) return;
+
+    const res = await fetch(`/game/status/${matchId}/`);
+    const data = await res.json();
+
+    if (data.is_finished) {
+        gameOver = true;
+        location.reload();
+    }
+}, 3000);
+</script>
+    {% if result %}
+        <hr>
+
+        {% if result.error %}
+            <pre style="color:red">{{ result.error }}</pre>
+        {% else %}
+            <h4>Результаты тестов:</h4>
+
+            {% for r in result.results %}
+                {% if r.passed %}
+                    ✅
+                {% else %}
+                    ❌
+                {% endif %}
+                input={{ r.input }}
+                | output={{ r.output }}
+                | expected={{ r.expected }}
+                <br>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+</div>
+        </div>
     </div>
+
+    
 </body>
 </html>

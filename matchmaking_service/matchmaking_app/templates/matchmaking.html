@@ -1,39 +1,200 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Поиск игры</title>
+    <meta charset="UTF-8">
+    <title>ГеймМастер - Поиск игры</title>
     <style>
-        #status { color: blue; font-weight: bold; }
-        .hidden { display: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            /* Фоновое изображение */
+            background-image: url("{% static 'images/ChatBox_image.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-text {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .welcome-text h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .greeting {
+            color: #333;
+            font-size: 18px;
+            padding: 15px;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 8px;
+            border: 2px solid #28a745;
+            font-family: monospace;
+        }
+        
+        .greeting strong {
+            color: #28a745;
+            font-size: 20px;
+        }
+        
+        #search-block {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            padding: 40px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #find-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        #find-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        #find-btn:active {
+            transform: translateY(0);
+        }
+
+        #status-block {
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            padding: 40px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #status { 
+            color: #667eea;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .loader {
+            margin: 0 auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden { 
+            display: none;
+        }
+        
+        /* Анимация появления */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <h1>Мировая Арена 2026</h1>
-    
-    <div id="search-block">
-        <button id="find-btn" onclick="startSearch()">НАЧАТЬ ПОИСК ИГРОКА</button>
-    </div>
+    <div class="container fade-in">
+        <div class="header">
+            <h1>🎮 ГеймМастер</h1>
+            <p>Мировая Арена 2026</p>
+        </div>
+        
+        <div class="welcome-text">
+            <h2>Добро пожаловать в ГеймМастер!</h2>
+            <div class="greeting">
+                Приветствую, <strong id="player-nick">{{username}}</strong>! 👋
+            </div>
+        </div>
+        
+        <div id="search-block">
+            <button id="find-btn" onclick="startSearch()">🔍 Начать поиск игрока</button>
+        </div>
 
-    <div id="status-block" class="hidden">
-        <p id="status">Ищем противника...</p>
-        <div class="loader"></div> <!-- Можно добавить крутилку -->
+        <div id="status-block" class="hidden">
+            <p id="status">Ищем противника...</p>
+            <div class="loader"></div>
+        </div>
     </div>
 
     <script>
         let socket = null;
-        const token = "{{ token }}"; // Берем из Django context
+        const token = "{{ token }}";
 
         function startSearch() {
-            // 1. Показываем статус поиска, скрываем кнопку
+
             document.getElementById('search-block').classList.add('hidden');
             document.getElementById('status-block').classList.remove('hidden');
 
-            // 2. Открываем сокет к нашему Consumer
             socket = new WebSocket(`ws://127.0.0.1:8001/ws/match/?token=${token}`);
 
             socket.onopen = function(e) {
-                console.log("Соединение установлено. Отправляем запрос на поиск...");
-                // 3. Шлем сигнал "ищи" (receive в Consumer поймает это)
+                console.log("Соединение установлено запрос на поиск...");
+
                 socket.send(JSON.stringify({'action': 'find_match'}));
             };
 
@@ -41,15 +202,15 @@
                 const data = JSON.parse(e.data);
                 
                 if (data.action === "redirect") {
-                    document.getElementById('status').innerText = "Матч найден! Переходим...";
-                    // 4. Тот самый перекид на Сервис Игры
+                    document.getElementById('status').innerText = "Матч найден Переходим...";
+
                     window.location.href = data.url;
                 }
             };
 
             socket.onclose = function(e) {
                 console.log("Соединение закрыто");
-                // Если сокет закрылся сам (ошибка), возвращаем кнопку
+
                 alert("Ошибка связи или неверный токен");
                 location.reload();
             };

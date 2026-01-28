@@ -1,33 +1,279 @@
 {% extends 'layer.html' %}
+{% block head %}
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Контейнер для формы */
+.auth-container {
+    max-width: 450px;
+    width: 100%;
+    margin: 20px;
+}
+
+/* Заголовок страницы */
+.header-bar {
+    background: white;
+    color: #667eea;
+    padding: 30px 20px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-bar h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Тело карточки с формой */
+.card-body {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Стили формы */
+form {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Если header-bar и form вместе */
+.header-bar + form {
+    border-radius: 0 0 10px 10px;
+    margin-top: -1px;
+}
+
+/* Лейблы */
+label {
+    display: block;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 8px;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+/* Поля ввода */
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background: #fafafa;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Кнопка отправки */
+input[type="submit"],
+.button {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 25px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+input[type="submit"]:hover,
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+input[type="submit"]:active,
+.button:active {
+    transform: translateY(0);
+}
+
+/* Текст и ссылки */
+p {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+/* Сообщения об ошибках */
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.errorlist li {
+    background: #fee;
+    color: #c33;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    border-left: 4px solid #c33;
+}
+
+/* Сообщения Django (messages) */
+.messages {
+    margin-top: 15px;
+}
+
+.messages p {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px 15px;
+    border-radius: 5px;
+    border-left: 4px solid #28a745;
+    text-align: left;
+}
+
+/* Хелп текст */
+.helptext {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+}
+
+/* Параграфы с полями формы */
+form p {
+    margin: 0;
+    text-align: left;
+}
+
+/* Анимация появления */
+.auth-container {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .auth-container {
+        margin: 10px;
+    }
+    
+    .header-bar,
+    .card-body,
+    form {
+        padding: 20px;
+    }
+    
+    .header-bar h1 {
+        font-size: 24px;
+    }
+}
+</style>
+{% endblock head %}
 {% block content %}
 
-<div class="header-bar">
-    <h1>Register</h1>
+<div class="auth-container">
+    <div class="header-bar">
+        <h1>📝 Register</h1>
+    </div>
+
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <label>{{form.username.label}}</label>
+            {{form.username}}
+            {% if form.username.errors %}
+                <ul class="errorlist">
+                    {% for error in form.username.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <label>{{form.password1.label}}</label>
+            {{form.password1}}
+            {% if form.password1.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password1.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <label>{{form.password2.label}}</label>
+            {{form.password2}}
+            {% if form.password2.errors %}
+                <ul class="errorlist">
+                    {% for error in form.password2.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <input class="button" type="submit" value="Зарегистрироваться">
+        </form>
+        
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p>{{message}}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
 </div>
 
-<div class="card-body">
-    <form method="POST">
-        {% csrf_token %}
-        <label>{{form.username.label}}</label>
-        {{form.username}}
-
-        <label>{{form.password1.label}}</label>
-        {{form.password1}}
-
-        <label>{{form.password2.label}}</label>
-        {{form.password2}}
-
-        <input style="margin-top:10px ;" class="button" type="submit" value="Register">
-    </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
-
-    {% if messages %}
-    {% for message in messages %}
-    
-    <p>{{message}}</p>
-    
-    {% endfor %}
-    {% endif %}
-</div>
 
 {% endblock content %}
