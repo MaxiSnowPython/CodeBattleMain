@@ -8,6 +8,7 @@ from django.contrib.auth.views import LoginView
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
+
 # Create your views here.
 @method_decorator(csrf_exempt, name="dispatch")
 class RegView(FormView):
@@ -22,7 +23,7 @@ class RegView(FormView):
         print("Zaregalsa")
         return redirect(f"http://127.0.0.1:8001/match/hub/?token={access_token}")
     def form_invalid(self, form):
-        return super.form_invalid(form)
+        return FormView.form_invalid(self,form)
 @method_decorator(csrf_exempt, name="dispatch")    
 class LogView(LoginView):
     template_name = 'log_form.html'
@@ -35,4 +36,4 @@ class LogView(LoginView):
         print("Zaloginilsa")
         return redirect(f"http://127.0.0.1:8001/match/hub/?token={access_token}")
     def form_invalid(self, form):
-        return super.form_invalid(form)
+        return FormView.form_invalid(self,form)

@@ -10,11 +10,10 @@ class UserProfile(models.Model):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     bio = models.TextField(max_length=500, blank=True)
     
-    # Статистика
+
     games_played = models.IntegerField(default=0)
     games_won = models.IntegerField(default=0)
     
-    # Статус
     is_online = models.BooleanField(default=False)
     @property
     def avatar_url(self):
@@ -41,3 +40,15 @@ class Friendship(models.Model):
     
     def __str__(self):
         return f"{self.from_user.username} -> {self.to_user.username}"
+    
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"{self.sender.username} -> {self.receiver.username}: {self.content[:20]}"

@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import TokenError
-from .models import UserProfile, Friendship
+from .models import *
 
 User = get_user_model()
 
@@ -256,3 +256,26 @@ class UpdateProfileView(View):
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)
+class ChatHistoryView(View):
+    def get(self, request, username):
+        token_str = request.GET.get("token")
+        try:
+            access = AccessToken(token_str)
+            user = User.objects.get(id=access["user_id"])
+            other_user = User.objects.get(username=username)
+            
+            # Получаем последние 50 сообщений между пользователями
+            messages = Message.objects.filter(
+                (models.Q(sender=user, receiver=other_user) | 
+                 models.Q(sender=other_user, receiver=user))
+            ).order_by('timestamp')[:50]
+            
+            data = [{
+                'sender': m.sender.username,
+                'content': m.content,
+                'timestamp': m.timestamp.strftime('%H:%M')
+            } for m in messages]
+            
+            return JsonResponse({'messages': data})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=403)

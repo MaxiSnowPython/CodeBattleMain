@@ -11,7 +11,7 @@ from django.utils.decorators import method_decorator
 from .sandbox.sandbox import run_in_sandbox
 from django.core.cache import cache
 from django.http import JsonResponse
-
+from .kafka_service import kafka_producer
 # Create your views here.
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -121,6 +121,29 @@ class GameRoomView(View):
                             },
                             timeout=60 * 10  # 10 минут
                         )
+                        winner_id = user.id
+                        loser_id = room.player2_id if user.id == room.player1_id else room.player1_id
+                        
+                        match_result_event = {
+                            "event": "match_finished",
+                            "match_id": room.match_id,
+                            "winner_id": winner_id,
+                            "loser_id": loser_id,
+                            "task_id": room.task_id,
+                            "task_title": room.task.title
+                        }
+                        kafka_producer.send_event("user_stats", match_result_event)
+                        # ----------------------------------------------
+
+                        cache.set(
+                            f"match:{room.match_id}:result",
+                            {
+                                "is_finished": True,
+                                "winner_name": room.winner_name
+                            },
+                            timeout=60 * 10
+                        )
+
                     TaskSubmission.objects.create(
                         user=user,
                         task=room.task,

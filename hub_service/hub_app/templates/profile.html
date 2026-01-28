@@ -476,6 +476,115 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* --- СТИЛИ ЧАТА (Добавлено) --- */
+        #chat-window {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none; /* Скрыто по умолчанию */
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .close-chat:hover { opacity: 1; }
+
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8f9fa;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .msg-sent {
+            align-self: flex-end;
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg-received {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .chat-input-area {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input:focus { border-color: #667eea; }
+
+        .chat-send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover { background: #764ba2; transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -541,7 +650,7 @@
                 <!-- Действия -->
                 <div class="profile-actions">
                     <button class="button button-secondary">⚙️ Настройки</button>
-                    <a href="" class="button">🎮 Начать игру</a>
+                    <a  href="http://localhost:8001/match/hub/?token={{ token }}" class="button" style="color: #dc3545;" >🎮 Начать игру</a>
                     <a href="#" class="button button-danger">🚪 Выйти</a>
                 </div>
             </div>
@@ -622,6 +731,21 @@
         </div>
     </div>
 
+
+    <!-- Окно чата -->
+<div id="chat-window">
+    <div class="chat-header">
+        <h4 id="chat-user-title">Чат</h4>
+        <button class="close-chat" onclick="closeChat()">×</button>
+    </div>
+    <div id="chat-messages">
+        <!-- Сообщения появятся здесь -->
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Напишите сообщение..." autocomplete="off">
+        <button class="chat-send-btn" id="chat-send">➤</button>
+    </div>
+</div>
     <script>
         // Автоматическая отправка формы при выборе аватара
         document.getElementById('avatar-input').addEventListener('change', function() {
@@ -648,7 +772,90 @@
         function inviteToGame(username) {
             alert(`Приглашение в игру отправлено ${username}!`);
             // Здесь будет логика приглашения через WebSocket
+        
         }
+        const token = "{{ token }}";
+    const currentUsername = "{{ username }}";
+    let chatSocket = null;
+
+    // Автоматическая отправка формы при выборе аватара (ТВОЙ КОД)
+    document.getElementById('avatar-input').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatar-preview').src = e.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+            document.getElementById('avatar-form').submit();
+        }
+    });
+
+    // --- ЛОГИКА ЧАТА ---
+
+    async function openChat(username) {
+        const chatWindow = document.getElementById('chat-window');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatTitle = document.getElementById('chat-user-title');
+        
+        chatWindow.style.display = 'flex';
+        chatTitle.innerText = `Чат с ${username}`;
+        chatMessages.innerHTML = '<p style="text-align:center; color:#999;">Загрузка истории...</p>';
+
+        // 1. Загружаем историю через API
+        try {
+            const response = await fetch(`/chat/history/${username}/?token=${token}`);
+            const data = await response.json();
+            chatMessages.innerHTML = '';
+            data.messages.forEach(msg => {
+                appendMessage(msg.sender, msg.content);
+            });
+        } catch (err) {
+            console.error("Ошибка загрузки истории:", err);
+            chatMessages.innerHTML = '';
+        }
+
+        // 2. Подключаем WebSocket
+        if (chatSocket) chatSocket.close();
+        
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${username}/?token=${token}`);
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            appendMessage(data.sender, data.message);
+        };
+    }
+
+    function closeChat() {
+        document.getElementById('chat-window').style.display = 'none';
+        if (chatSocket) chatSocket.close();
+    }
+
+    function appendMessage(sender, text) {
+        const container = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `msg ${sender === currentUsername ? 'msg-sent' : 'msg-received'}`;
+        msgDiv.innerText = text;
+        container.appendChild(msgDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Отправка сообщения
+    document.getElementById('chat-send').onclick = function() {
+        const input = document.getElementById('chat-input');
+        if (input.value && chatSocket) {
+            chatSocket.send(JSON.stringify({ 'message': input.value }));
+            input.value = '';
+        }
+    };
+
+    document.getElementById('chat-input').onkeyup = function(e) {
+        if (e.keyCode === 13) document.getElementById('chat-send').click();
+    };
+
+    function inviteToGame(username) {
+        alert(`Приглашение в игру отправлено ${username}!`);
+    }
     </script>
 </body>
 </html>
