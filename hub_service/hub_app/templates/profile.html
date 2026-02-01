@@ -803,7 +803,7 @@
 
         // 1. Загружаем историю через API
         try {
-            const response = await fetch(`/chat/history/${username}/?token=${token}`);
+            const response = await fetch(`chat/history/${username}/?token=${token}`);
             const data = await response.json();
             chatMessages.innerHTML = '';
             data.messages.forEach(msg => {

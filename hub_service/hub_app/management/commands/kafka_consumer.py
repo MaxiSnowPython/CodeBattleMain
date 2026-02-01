@@ -32,13 +32,11 @@ class Command(BaseCommand):
                     winner_id = data["winner_id"]
                     loser_id = data["loser_id"]
                     if winner_id:
-                    # Обновляем победителя
                         winner_profile, _ = UserProfile.objects.get_or_create(user_id=winner_id)
-                        winner_profile.games_wons += 1
+                        winner_profile.games_won += 1
                         winner_profile.games_played += 1 
                         winner_profile.save()
 
-                    # Обновляем проигравшего
                     if loser_id:
                         loser_profile, _ = UserProfile.objects.get_or_create(user_id=loser_id)
                         loser_profile.games_played += 1 

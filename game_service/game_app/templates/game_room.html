@@ -139,17 +139,13 @@
     <h3>💻 Ваше решение</h3>
 
     {% if room.is_finished %}
-        <textarea readonly rows="10" cols="60">
-{{ room.task.initial_code }}
-        </textarea>
         <p style="color: gray;">Игра завершена. Код заблокирован.</p>
     {% else %}
         <form method="post">
             {% csrf_token %}
 
             <textarea name="code" rows="12" cols="70">
-def solution(nums):
-    return sum(nums)
+{{ room.task.initial_code }}
             </textarea>
 
             <br><br>

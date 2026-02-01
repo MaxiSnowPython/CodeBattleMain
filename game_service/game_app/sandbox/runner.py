@@ -1,5 +1,6 @@
 import json
 import sys
+import inspect
 from pathlib import Path
 
 def main():
@@ -7,64 +8,58 @@ def main():
         code_file = Path("/sandbox/code.py")
         tests_file = Path("/sandbox/tests.json")
 
-        if not code_file.exists():
-            print(json.dumps([{"passed": False, "error": "code.py not found"}]))
-            sys.exit(1)
-        
-        if not tests_file.exists():
-            print(json.dumps([{"passed": False, "error": "tests.json not found"}]))
+        if not code_file.exists() or not tests_file.exists():
+            print(json.dumps([{"passed": False, "error": "Internal error: files not found"}]))
             sys.exit(1)
 
         user_code = code_file.read_text(encoding="utf-8")
         tests = json.loads(tests_file.read_text(encoding="utf-8"))
 
-        if not isinstance(tests, list):
-            print(json.dumps([{"passed": False, "error": f"tests должен быть списком, получен {type(tests).__name__}"}]))
-            sys.exit(1)
+        # Пространство имен для выполнения кода
+        namespace = {}
+        try:
+            exec(user_code, namespace)
+        except Exception as e:
+            print(json.dumps([{"passed": False, "error": f"Syntax error: {e}"}]))
+            return
+
+        # Ищем функцию (solve или любую другую)
+        user_func = namespace.get("solve")
+        if not user_func:
+            # Если solve нет, берем первую попавшуюся функцию пользователя
+            funcs = [obj for name, obj in namespace.items() 
+                     if inspect.isfunction(obj) and obj.__module__ is None]
+            if funcs:
+                user_func = funcs[0]
+
+        if not user_func:
+            print(json.dumps([{"passed": False, "error": "Function not found. Use: def solve(a, b):"}]))
+            return
 
         results = []
-
-        # Проверяем каждый тест
         for i, test in enumerate(tests):
             variables = test.get("variables", {})
             expected = test.get("expected")
-            passed = False
-            test_error = None
-            actual_result = None
-
             try:
-                # Создаем namespace с переменными
-                namespace = variables.copy()
-                
-                # Выполняем код пользователя
-                exec(user_code, namespace)
-                
-                # Получаем результат из переменной 'result'
-                if 'result' not in namespace:
-                    test_error = "Переменная 'result' не найдена. Сохраните ответ в переменную result."
-                else:
-                    actual_result = namespace['result']
-                    passed = actual_result == expected
-                    
+                # ВЫЗЫВАЕМ ФУНКЦИЮ
+                actual = user_func(**variables)
+                results.append({
+                    "test_num": i + 1,
+                    "passed": actual == expected,
+                    "expected": expected,
+                    "actual": actual
+                })
             except Exception as e:
-                test_error = str(e)
-                actual_result = None
-
-            results.append({
-                "test_num": i + 1,
-                "variables": variables,
-                "expected": expected,
-                "actual": actual_result,
-                "passed": passed,
-                "error": test_error,
-            })
+                results.append({
+                    "test_num": i + 1,
+                    "passed": False,
+                    "error": str(e)
+                })
 
         print(json.dumps(results))
 
     except Exception as e:
-        print(json.dumps([{"passed": False, "error": f"Fatal error: {str(e)}"}]))
-        sys.exit(1)
-
+        print(json.dumps([{"passed": False, "error": str(e)}]))
 
 if __name__ == "__main__":
     main()
