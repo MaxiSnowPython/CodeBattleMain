@@ -10,4 +10,5 @@ urlpatterns = [
     path("remove-friend/<int:user_id>/", RemoveFriendView.as_view(), name="remove_friend"),
     path("update/", UpdateProfileView.as_view(), name="update_profile"),
     path('chat/history/<str:username>/', ChatHistoryView.as_view(), name='chat_history'),
+    path('logout/',LogoutView.as_view(),name="logout"),
 ]

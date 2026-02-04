@@ -24,14 +24,22 @@ SECRET_KEY = 'django-insecure-$2p@0f_uh+mmw+2s@3@+dxqw)%wej9ls0y90iqtkqj6_^0io^8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'auth.codebattle.local',
+    'match.codebattle.local',
+    'game.codebattle.local',
+    'hub.codebattle.local',
+    'localhost',
+    '127.0.0.1',
+    '*',
+    '172.20.10.2',
+]
 
 # Application definition
 
 INSTALLED_APPS = [
     'daphne',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,6 +60,22 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://auth.codebattle.local:8000",
+    "http://match.codebattle.local:8001",
+    "http://game.codebattle.local:8002",
+    "http://hub.codebattle.local:8003",
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
 
 ROOT_URLCONF = 'hub_service.urls'
 
@@ -135,3 +160,11 @@ CHANNEL_LAYERS = {
     },
 }
 WHITENOISE_AUTOREFRESH = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://auth.codebattle.local:8000',
+    'http://match.codebattle.local:8001',
+    'http://game.codebattle.local:8002',
+    'http://hub.codebattle.local:8003',
+]
+CSRF_COOKIE_DOMAIN = ".codebattle.local"
+SESSION_COOKIE_DOMAIN = ".codebattle.local"

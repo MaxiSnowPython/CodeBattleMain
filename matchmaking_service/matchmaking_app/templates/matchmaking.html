@@ -295,7 +295,7 @@
             document.getElementById('search-block').classList.add('hidden');
             document.getElementById('status-block').classList.remove('hidden');
 
-            socket = new WebSocket(`ws://127.0.0.1:8001/ws/match/?token=${token}`);
+            socket = new WebSocket(`ws://match.codebattle.local:8001/ws/match/?token=${token}`);
 
             socket.onopen = function(e) {
                 console.log("Соединение установлено запрос на поиск...");
@@ -326,12 +326,12 @@
         <span>⚡ CodeBattle</span>
     </div>
 
-    <a  href="http://localhost:8001/match/hub/?token={{ token }}" class="nav-item" style="color: #dc3545;">
+    <a  href="http://match.codebattle.local:8001/match/hub/" class="nav-item" style="color: #dc3545;">
         <span class="icon">🏟️</span>
         <span>Арена</span>
     </a>
 
-    <a  href="http://localhost:8003/profile/?token={{ token }}" class="nav-item" style="color: #dc3545;">
+    <a  href="http://hub.codebattle.local:8003/profile/" class="nav-item" style="color: #dc3545;">
         <span class="icon">👤</span>
         <span>Профиль</span>
     </a>
@@ -352,7 +352,7 @@
     </a>
 
     <div class="sidebar-footer">
-        <a href="/logout" class="nav-item" style="color: #dc3545;">
+        <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item" style="color: #dc3545;">
             <span class="icon">🚪</span>
             <span>Выйти</span>
         </a>

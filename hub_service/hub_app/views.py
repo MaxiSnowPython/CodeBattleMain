@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views import View
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
@@ -14,11 +14,12 @@ class ProfileView(View):
     """Страница профиля"""
     
     def get(self, request):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
-        
+
         try:
+
             access = AccessToken(token_str)
             user_id = access["user_id"]
             username = access.get("username", f"user_{user_id}")
@@ -31,10 +32,14 @@ class ProfileView(View):
             
             # Получаем или создаем профиль
             profile, created = UserProfile.objects.get_or_create(user=user)
+            if not profile.is_online:
+                profile.is_online = True
+                profile.save(update_fields=["is_online"])
+
             
             # Получаем список друзей
             friends_sent = Friendship.objects.filter(
-                from_user=user, 
+                from_user=user,     
                 status='accepted'
             ).values_list('to_user', flat=True)
             
@@ -91,7 +96,7 @@ class AddFriendView(View):
     """Добавить друга"""
     
     def post(self, request):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
         
@@ -143,7 +148,7 @@ class AcceptFriendView(View):
     """Принять запрос в друзья"""
     
     def post(self, request, friendship_id):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
         
@@ -171,7 +176,7 @@ class RejectFriendView(View):
     """Отклонить запрос"""
     
     def post(self, request, friendship_id):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
         
@@ -198,7 +203,7 @@ class RemoveFriendView(View):
     """Удалить из друзей"""
     
     def post(self, request, user_id):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
         
@@ -230,7 +235,7 @@ class UpdateProfileView(View):
     """Обновить профиль"""
     
     def post(self, request):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away", status=403)
         
@@ -258,7 +263,7 @@ class UpdateProfileView(View):
             return HttpResponse(f"Ошибка: {e}", status=403)
 class ChatHistoryView(View):
     def get(self, request, username):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         try:
             access = AccessToken(token_str)
             user = User.objects.get(id=access["user_id"])
@@ -279,3 +284,24 @@ class ChatHistoryView(View):
             return JsonResponse({'messages': data})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=403)
+        
+class LogoutView(View):
+    def get(self, request):
+        token_str = request.COOKIES.get("access_token")
+
+        if token_str:
+            try:
+                access = AccessToken(token_str)
+                user_id = access["user_id"]
+                username = access["username"]
+                profile = UserProfile.objects.get(user_id=user_id)
+                profile.is_online = False
+                profile.save()
+            except Exception:
+                pass
+
+        response = HttpResponseRedirect("http://auth.codebattle.local:8000/auth/login/")
+        print(f"ydalen{username}")
+        response.delete_cookie('access_token')
+        
+        return response

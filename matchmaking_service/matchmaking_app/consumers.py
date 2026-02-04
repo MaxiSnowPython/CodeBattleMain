@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 import redis
-
+from urllib.parse import parse_qs
 class MatchConsumer(AsyncWebsocketConsumer):
         
     @database_sync_to_async
@@ -29,9 +29,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
             return None
     
     async def connect(self):
-        query_string = self.scope['query_string'].decode()
-        params = dict(x.split('=') for x in query_string.split('&') if '=' in x)
-        self.token_str = params.get('token')
+        query = parse_qs(self.scope["query_string"].decode())
+        self.token_str = query.get("token", [None])[0]
         self.user = await self.get_or_create_user_from_token(self.token_str)
         if self.user is None:
             await self.close()
@@ -39,6 +38,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
             await self.accept()
             self.user_group = f"user_{self.user.id}"
             await self.channel_layer.group_add(self.user_group, self.channel_name)
+        
     
     async def receive(self,text_data):
         r = redis.Redis(host='127.0.0.1', port=6379, db=0)
@@ -57,7 +57,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
                     }
                 )
     async def match_notification(self,event):
-        game_url = f"http://127.0.0.1:8002/game/{event['match_id']}/?token={self.token_str}"
+        game_url = f"http://game.codebattle.local:8002/game/{event['match_id']}/?token={self.token_str}"
         await self.send(text_data=json.dumps({
             "action": "redirect",
             "url": game_url

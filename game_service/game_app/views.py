@@ -17,7 +17,7 @@ from .kafka_service import kafka_producer
 @method_decorator(csrf_exempt, name="dispatch")
 class GameRoomView(View):
     def get(self,request,match_id):
-        token_str = request.GET.get("token")
+        token_str = request.COOKIES.get("access_token")
         if not token_str:
             return HttpResponse("No token pls go away",status = 403)
         try:
@@ -68,7 +68,7 @@ class GameRoomView(View):
         
         room = get_object_or_404(GameRoom, match_id=match_id)
         result = None
-        token = request.GET.get("token")
+        token = request.COOKIES.get("access_token")
         try:
             access = AccessToken(token)
             user_id = access["user_id"]

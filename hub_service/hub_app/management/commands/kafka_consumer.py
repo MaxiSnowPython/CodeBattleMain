@@ -2,7 +2,7 @@ import json
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from confluent_kafka import Consumer, KafkaError
-# Предположим, у тебя есть модель Profile с полем wins и losses
+
 from ...models import UserProfile 
 
 class Command(BaseCommand):
