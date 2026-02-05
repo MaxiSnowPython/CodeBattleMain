@@ -111,11 +111,11 @@ class AddFriendView(View):
             try:
                 to_user = User.objects.get(username=username)
             except User.DoesNotExist:
-                return redirect(f'/profile/?token={token_str}')
+                return redirect(f'/profile/')
             
             # Проверяем что не добавляем себя
             if to_user == user:
-                return redirect(f'/profile/?token={token_str}')
+                return redirect(f'/profile/')
             
             # Проверяем нет ли уже запроса
             existing = Friendship.objects.filter(
@@ -138,7 +138,7 @@ class AddFriendView(View):
                         to_user=to_user
                     )
             
-            return redirect(f'/profile/?token={token_str}')
+            return redirect(f'/profile/')
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)
@@ -166,7 +166,7 @@ class AcceptFriendView(View):
             friendship.status = 'accepted'
             friendship.save()
             
-            return redirect(f'/profile/?token={token_str}')
+            return redirect(f'/profile/')
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)
@@ -193,7 +193,7 @@ class RejectFriendView(View):
             
             friendship.delete()
             
-            return redirect(f'/profile/?token={token_str}')
+            return redirect(f'/profile/')
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)
@@ -225,7 +225,7 @@ class RemoveFriendView(View):
                 to_user=user
             ).delete()
             
-            return redirect(f'/profile/?token={token_str}')
+            return redirect(f'/profile/')
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)
@@ -257,7 +257,7 @@ class UpdateProfileView(View):
                 profile.bio = bio
                 profile.save()
             
-            return redirect(f'/profile/?token={token_str}')
+            return redirect(f'/profile/')
         
         except Exception as e:
             return HttpResponse(f"Ошибка: {e}", status=403)

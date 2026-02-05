@@ -22,7 +22,7 @@ class RegView(FormView):
         response = HttpResponseRedirect("http://match.codebattle.local:8001/match/hub/")
         response.set_cookie(
             key = "access_token",
-           # domain=".codebattle.local",
+            domain=".codebattle.local",
             value = access_token,
             httponly = True,
             samesite = "Lax"
@@ -45,7 +45,7 @@ class LogView(LoginView):
         response.set_cookie(
             key = "access_token",
             value = access_token,
-            #domain=".codebattle.local",
+            domain=".codebattle.local",
             httponly = True,
             secure=False,
             samesite = "Lax",

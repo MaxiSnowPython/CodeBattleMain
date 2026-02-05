@@ -75,7 +75,7 @@ CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_HTTPONLY = True
-CSRF_COOKIE_HTTPONLY = False #potom YES
+CSRF_COOKIE_HTTPONLY = True #potom YES
 
 ROOT_URLCONF = 'auth_service.urls'
 
@@ -156,5 +156,5 @@ CSRF_TRUSTED_ORIGINS = [
     'http://game.codebattle.local:8002',
     'http://hub.codebattle.local:8003',
 ]
-#CSRF_COOKIE_DOMAIN = ".codebattle.local"
-#SESSION_COOKIE_DOMAIN = ".codebattle.local"
+CSRF_COOKIE_DOMAIN = ".codebattle.local"
+SESSION_COOKIE_DOMAIN = ".codebattle.local"

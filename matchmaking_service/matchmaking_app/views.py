@@ -10,4 +10,3 @@ class MatchmakingPageView(View):
         access = AccessToken(token)
         username = access.get("username")
         return render(request, 'matchmaking.html', {'token': token,'username': username})
-    
