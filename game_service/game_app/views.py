@@ -31,12 +31,19 @@ class GameRoomView(View):
             if user.username != username:
                 user.username = username
                 user.save() 
-            
-            _, p1_id, p2_id = match_id.split("_")
+                        
+            parts = match_id.split("_")
+            if len(parts) < 3:
+                return HttpResponse("Invalid Match ID", status=400)
 
-            player1 = User.objects.get(id=p1_id)
-            player2 = User.objects.get(id=p2_id)
+            p1_id = parts[1]
+            p2_id = parts[2]
 
+            try:
+                player1 = User.objects.get(id=p1_id)
+                player2 = User.objects.get(id=p2_id)
+            except User.DoesNotExist:
+                return HttpResponse("❌ Один из игроков не найден в базе игрового сервиса", status=404)
             task = Task.objects.first()
             if not task:
                 return HttpResponse("❌ Нет задач в базе", status=500)
@@ -153,13 +160,15 @@ class GameRoomView(View):
 
                     result = {
                         "is_correct": passed_all,
-                        "tests": test_results
+                        "results": test_results
                     }
 
         return render(
             request,
             "game_room.html",
             {
+                "match_id": match_id, # Чтобы JS не выдавал /game/status//
+                "user": user, 
                 "username":username,
                 "room": room,
                 "result": result

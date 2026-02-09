@@ -40,6 +40,41 @@
             background: #d4edda;
             border: 2px solid #28a745;
         }
+        
+        /* Стили для результата игры */
+        .game-finished {
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            animation: fadeIn 0.5s;
+        }
+        
+        .game-finished.winner {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+        }
+        
+        .game-finished.loser {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+        }
+        
+        .game-finished small {
+            display: block;
+            margin-top: 10px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
         .game-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -64,6 +99,12 @@
             box-sizing: border-box;
             background-color: #fafafa;
         }
+        
+        textarea:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+        
         .button {
             background: #28a745;
             color: white;
@@ -75,10 +116,29 @@
             margin: 10px 5px 0 0;
             text-decoration: none;
             display: inline-block;
+            transition: all 0.3s ease;
         }
-        .button:hover { background: #218838; }
-        .leave-btn { background: #6c757d; }
-        .leave-btn:hover { background: #545b62; }
+        .button:hover { 
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .leave-btn { 
+            background: #6c757d; 
+        }
+        .leave-btn:hover { 
+            background: #545b62; 
+        }
+        
+        .new-match-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+        .new-match-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
         
         .result-panel {
             margin-top: 15px;
@@ -86,6 +146,21 @@
             border-radius: 5px;
             background: #e9ecef;
             font-family: monospace;
+        }
+        
+        .test-result {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .test-passed {
+            border-left: 4px solid #28a745;
+        }
+        
+        .test-failed {
+            border-left: 4px solid #dc3545;
         }
     </style>
 </head>
@@ -114,15 +189,23 @@
         </div>
 
         {% if room.is_finished %}
-            {% if room.winner_name == username %}
+            {% if room.winner_name == user.username %}
                 <div class="game-finished winner">
                     🎉 Поздравляем! Вы выиграли!
                     <br><small>Вы решили задачу первым!</small>
+                    <br><br>
+                    <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
+                        🎮 Новый матч
+                    </a>
                 </div>
             {% else %}
                 <div class="game-finished loser">
                     😔 Игра окончена. Победил: {{ room.winner_name }}
                     <br><small>В следующий раз повезёт больше!</small>
+                    <br><br>
+                    <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
+                        🎮 Новый матч
+                    </a>
                 </div>
             {% endif %}
         {% endif %}
@@ -132,75 +215,152 @@
                 <h2>📝 {{ room.task.title }}</h2>
                 <p>{{ room.task.description|linebreaks }}</p>
                 <hr>
-                <p><strong>Ожидаемый результат:</strong> <code>{{ room.task.expected_output }}</code></p>
+                <h4>Примеры:</h4>
+                {% if room.task.tests %}
+                    {% for test in room.task.tests %}
+                        <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                            <strong>Вход:</strong> <code>{{ test.variables }}</code><br>
+                            <strong>Ожидаемый результат:</strong> <code>{{ test.expected }}</code>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
 
-           <div class="panel">
-    <h3>💻 Ваше решение</h3>
+            <div class="panel">
+                <h3>💻 Ваше решение</h3>
 
-    {% if room.is_finished %}
-        <p style="color: gray;">Игра завершена. Код заблокирован.</p>
-    {% else %}
-        <form method="post">
-            {% csrf_token %}
-
-            <textarea name="code" rows="12" cols="70">
-{{ room.task.initial_code }}
-            </textarea>
-
-            <br><br>
-
-            <button type="submit" name="submit_solution" class="button">
-                🚀 Отправить решение
-            </button>
-
-            <button type="submit" name="leave" class="button leave-btn">
-                🚪 Покинуть комнату
-            </button>
-        </form>
-    {% endif %}
-<script>
-const matchId = "{{ match_id }}";
-const myUsername = "{{ user.username }}";
-let gameOver = false;
-
-setInterval(async () => {
-    if (gameOver) return;
-
-    const res = await fetch(`/game/status/${matchId}/`);
-    const data = await res.json();
-
-    if (data.is_finished) {
-        gameOver = true;
-        location.reload();
-    }
-}, 3000);
-</script>
-    {% if result %}
-        <hr>
-
-        {% if result.error %}
-            <pre style="color:red">{{ result.error }}</pre>
-        {% else %}
-            <h4>Результаты тестов:</h4>
-
-            {% for r in result.results %}
-                {% if r.passed %}
-                    ✅
+                {% if room.is_finished %}
+                    <p style="color: #6c757d; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                        ⚠️ Игра завершена. Код заблокирован.
+                    </p>
+                    
+                    <textarea disabled rows="12" cols="70">{{ room.task.initial_code }}</textarea>
+                    
                 {% else %}
-                    ❌
+                    <form method="post" id="solution-form">
+                        {% csrf_token %}
+
+                        <textarea name="code" rows="12" cols="70" id="code-editor">{{ room.task.initial_code }}</textarea>
+
+                        <br><br>
+
+                        <button type="submit" name="submit_solution" class="button">
+                            🚀 Отправить решение
+                        </button>
+
+                        <button type="submit" name="leave" class="button leave-btn">
+                            🚪 Покинуть комнату
+                        </button>
+                    </form>
                 {% endif %}
-                input={{ r.input }}
-                | output={{ r.output }}
-                | expected={{ r.expected }}
-                <br>
-            {% endfor %}
-        {% endif %}
-    {% endif %}
-</div>
+
+                {% if result %}
+                    <div class="result-panel">
+                        {% if result.error %}
+                            <div style="color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 5px;">
+                                <strong>❌ Ошибка:</strong>
+                                <pre style="margin: 10px 0 0 0; white-space: pre-wrap;">{{ result.error }}</pre>
+                            </div>
+                        {% else %}
+                            <h4>Результаты тестов:</h4>
+
+                            {% for r in result.results %}
+                                <div class="test-result {% if r.passed %}test-passed{% else %}test-failed{% endif %}">
+                                    {% if r.passed %}
+                                        ✅ <strong>Тест пройден</strong>
+                                    {% else %}
+                                        ❌ <strong>Тест провален</strong>
+                                    {% endif %}
+                                    <br>
+                                    <small>
+                                        Вход: <code>{{ r.input }}</code> |
+                                        Ваш результат: <code>{{ r.output }}</code> |
+                                        Ожидалось: <code>{{ r.expected }}</code>
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
+    <script>
+        const matchId = "{{ match_id }}";
+        const myUsername = "{{ user.username }}";
+        let gameOver = {{ room.is_finished|yesno:"true,false" }};  // Сразу знаем статус
+        let checkInterval = null;
+
+        // Функция проверки статуса игры
+        async function checkGameStatus() {
+            if (gameOver) {
+                // Игра окончена - останавливаем проверку
+                if (checkInterval) {
+                    clearInterval(checkInterval);
+                    checkInterval = null;
+                    console.log('Игра завершена. Остановлена проверка статуса.');
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch(`/game/status/${matchId}/`, {
+                    credentials: 'include'  
+                });
+                
+                if (!res.ok) {
+                    console.error('Ошибка получения статуса:', res.status);
+                    return;
+                }
+                
+                const data = await res.json();
+
+                if (data.is_finished && !gameOver) {
+                    gameOver = true;
+                    console.log('Игра завершена! Перезагрузка страницы...');
+                    
+ 
+                    if (checkInterval) {
+                        clearInterval(checkInterval);
+                        checkInterval = null;
+                    }
+                    
+
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Ошибка проверки статуса:', error);
+            }
+        }
+
+        if (!gameOver) {
+            console.log('Игра в процессе. Запуск проверки статуса каждые 3 секунды...');
+            checkInterval = setInterval(checkGameStatus, 3000);
+        } else {
+            console.log('Игра уже завершена. Проверка статуса не требуется.');
+        }
+
+
+        window.addEventListener('beforeunload', () => {
+            if (checkInterval) {
+                clearInterval(checkInterval);
+            }
+        });
+
     
+        const form = document.getElementById('solution-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[name="submit_solution"]');
+                if (submitBtn) {
+                    // submitBtn.disabled = true;  <-- ЗАКОММЕНТИРУЙ ИЛИ УДАЛИ ЭТО
+                    submitBtn.textContent = '⏳ Проверка...';
+                    submitBtn.style.opacity = "0.5"; // Можно просто визуально приглушить
+                    submitBtn.style.pointerEvents = "none"; // Чтобы нельзя было нажать еще раз
+                }
+            });
+        }
+    </script>
 </body>
 </html>

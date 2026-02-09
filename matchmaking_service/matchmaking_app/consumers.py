@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 import redis
 from urllib.parse import parse_qs
+import uuid
 class MatchConsumer(AsyncWebsocketConsumer):
         
     @database_sync_to_async
@@ -46,7 +47,8 @@ class MatchConsumer(AsyncWebsocketConsumer):
         if r.llen("match_queue") >= 2:
             p1 = r.rpop("match_queue").decode()
             p2 = r.rpop("match_queue").decode()
-            match_id = f"match_{p1}_{p2}"
+            unique_suffix = uuid.uuid4().hex[:6] 
+            match_id = f"match_{p1}_{p2}_{unique_suffix}"
 
             for player_id in [p1,p2]:
                 await self.channel_layer.group_send(
@@ -57,7 +59,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
                     }
                 )
     async def match_notification(self,event):
-        game_url = f"http://game.codebattle.local:8002/game/{event['match_id']}/?token={self.token_str}"
+        game_url = f"http://game.codebattle.local:8002/game/{event['match_id']}"
         await self.send(text_data=json.dumps({
             "action": "redirect",
             "url": game_url
