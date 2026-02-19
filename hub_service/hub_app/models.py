@@ -16,6 +16,11 @@ class UserProfile(models.Model):
     
     is_online = models.BooleanField(default=False)
     @property
+    def win_rate(self):
+        if self.games_played == 0:
+            return 0
+        return round((self.games_won / self.games_played) * 100, 1)
+    @property
     def avatar_url(self):
         if self.avatar and hasattr(self.avatar, 'url'):
             return self.avatar.url

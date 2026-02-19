@@ -306,7 +306,7 @@
 
             try {
                 const res = await fetch(`/game/status/${matchId}/`, {
-                    credentials: 'include'  
+                    credentials: 'include'  // Отправляем cookies
                 });
                 
                 if (!res.ok) {
@@ -320,13 +320,13 @@
                     gameOver = true;
                     console.log('Игра завершена! Перезагрузка страницы...');
                     
- 
+                    // Останавливаем проверку
                     if (checkInterval) {
                         clearInterval(checkInterval);
                         checkInterval = null;
                     }
                     
-
+                    // Перезагружаем страницу ОДИН РАЗ
                     location.reload();
                 }
             } catch (error) {
@@ -334,6 +334,7 @@
             }
         }
 
+        // Запускаем проверку только если игра НЕ завершена
         if (!gameOver) {
             console.log('Игра в процессе. Запуск проверки статуса каждые 3 секунды...');
             checkInterval = setInterval(checkGameStatus, 3000);
@@ -341,23 +342,21 @@
             console.log('Игра уже завершена. Проверка статуса не требуется.');
         }
 
-
+        // Очистка при уходе со страницы
         window.addEventListener('beforeunload', () => {
             if (checkInterval) {
                 clearInterval(checkInterval);
             }
         });
 
-    
+        // Блокировка повторной отправки формы
         const form = document.getElementById('solution-form');
         if (form) {
             form.addEventListener('submit', function() {
                 const submitBtn = this.querySelector('button[name="submit_solution"]');
                 if (submitBtn) {
-                    // submitBtn.disabled = true;  <-- ЗАКОММЕНТИРУЙ ИЛИ УДАЛИ ЭТО
+                    submitBtn.disabled = true;
                     submitBtn.textContent = '⏳ Проверка...';
-                    submitBtn.style.opacity = "0.5"; // Можно просто визуально приглушить
-                    submitBtn.style.pointerEvents = "none"; // Чтобы нельзя было нажать еще раз
                 }
             });
         }

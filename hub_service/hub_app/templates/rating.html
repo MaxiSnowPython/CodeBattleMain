@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Рейтинг игроков - CodeBattle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Заголовок */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        /* Навигация */
+        .nav {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav a:hover {
+            background: #f0f0f0;
+        }
+        
+        /* Карточка текущего пользователя */
+        .current-user-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .current-user-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .current-user-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+        
+        .stat-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+        
+        /* Рейтинг таблица */
+        .rating-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .rating-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .player-row {
+            display: grid;
+            grid-template-columns: 60px 60px 1fr 120px 120px 120px 80px;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .player-row:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        /* Текущий пользователь */
+        .player-row.current-user {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #28a745;
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.2);
+        }
+        
+        /* Топ-3 медали */
+        .player-row.rank-1 {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: 2px solid #d4af37;
+        }
+        
+        .player-row.rank-2 {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            border: 2px solid #a8a8a8;
+        }
+        
+        .player-row.rank-3 {
+            background: linear-gradient(135deg, #cd7f32 0%, #e59866 100%);
+            border: 2px solid #b87333;
+        }
+        
+        .rank {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .rank-1 .rank { color: #d4af37; }
+        .rank-2 .rank { color: #888; }
+        .rank-3 .rank { color: #b87333; }
+        
+        .medal {
+            font-size: 32px;
+            text-align: center;
+        }
+        
+        .player-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .player-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .online-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .online-indicator.online {
+            background: #28a745;
+            box-shadow: 0 0 5px #28a745;
+        }
+        
+        .online-indicator.offline {
+            background: #6c757d;
+        }
+        
+        .stat-cell {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+        }
+        
+        .stat-cell strong {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .win-rate {
+            text-align: center;
+        }
+        
+        .win-rate-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .win-rate-bar {
+            width: 60px;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 5px auto 0;
+        }
+        
+        .win-rate-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s ease;
+        }
+        
+        /* Пустой рейтинг */
+        .empty-rating {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+        
+        .empty-rating-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 900px) {
+            .player-row {
+                grid-template-columns: 50px 50px 1fr;
+            }
+            
+            .stat-cell {
+                display: none;
+            }
+            
+            .current-user-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>🏆 Рейтинг игроков</h1>
+            <p>Топ лучших программистов CodeBattle</p>
+        </div>
+        
+        <!-- Навигация -->
+        <div class="nav">
+            <a href="/profile/">👤 Мой профиль</a>
+            <a href="/rating/" style="background: #f0f0f0;">🏆 Рейтинг</a>
+            <a href="http://match.codebattle.local:8001/match/hub/">🎮 Найти игру</a>
+        </div>
+        
+        <!-- Карточка текущего пользователя -->
+        <div class="current-user-card">
+            <h3>👑 Ваша позиция</h3>
+            <div class="current-user-stats">
+                <div class="stat-box">
+                    <div class="stat-value">#{{ current_user_rank|default:"—" }}</div>
+                    <div class="stat-label">Место</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ current_profile.games_played }}</div>
+                    <div class="stat-label">Игр</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ current_profile.games_won }}</div>
+                    <div class="stat-label">Побед</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ current_profile.win_rate }}%</div>
+                    <div class="stat-label">Винрейт</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Рейтинг таблица -->
+        <div class="rating-panel">
+            <h2 class="rating-title">📊 Топ игроков ({{ total_players }})</h2>
+            
+            {% if rating_data %}
+                <div class="rating-list">
+                    {% for player in rating_data %}
+                    <div class="player-row 
+                                {% if player.is_current_user %}current-user{% endif %}
+                                {% if player.rank == 1 %}rank-1{% endif %}
+                                {% if player.rank == 2 %}rank-2{% endif %}
+                                {% if player.rank == 3 %}rank-3{% endif %}">
+                        
+                        <!-- Позиция -->
+                        <div class="rank">{{ player.rank }}</div>
+                        
+                        <!-- Медаль для топ-3 -->
+                        <div class="medal">
+                            {% if player.rank == 1 %}🥇
+                            {% elif player.rank == 2 %}🥈
+                            {% elif player.rank == 3 %}🥉
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Игрок -->
+                        <div class="player-info">
+                            <img src="{{ player.avatar|default:'https://via.placeholder.com/50' }}" 
+                                 alt="{{ player.user.username }}" 
+                                 class="player-avatar">
+                            <div>
+                                <div class="player-name">
+                                    {{ player.user.username }}
+                                    {% if player.is_current_user %}(Вы){% endif %}
+                                    <span class="online-indicator {% if player.is_online %}online{% else %}offline{% endif %}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Статистика -->
+                        <div class="stat-cell">
+                            <strong>{{ player.games_played }}</strong><br>
+                            <small>игр</small>
+                        </div>
+                        
+                        <div class="stat-cell">
+                            <strong>{{ player.games_won }}</strong><br>
+                            <small>побед</small>
+                        </div>
+                        
+                        <div class="stat-cell">
+                            <strong>{{ player.games_played|add:"-"|add:player.games_won }}</strong><br>
+                            <small>поражений</small>
+                        </div>
+                        
+                        <!-- Винрейт -->
+                        <div class="win-rate">
+                            <div class="win-rate-value">{{ player.win_rate }}%</div>
+                            <div class="win-rate-bar">
+                                <div class="win-rate-fill" style="width: {{ player.win_rate }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-rating">
+                    <div class="empty-rating-icon">🎮</div>
+                    <p>Рейтинг пока пуст</p>
+                    <p style="font-size: 14px; margin-top: 10px;">Сыграйте первую игру!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

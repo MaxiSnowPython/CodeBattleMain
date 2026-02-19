@@ -305,3 +305,65 @@ class LogoutView(View):
         response.delete_cookie('access_token')
         
         return response
+
+
+# profile_app/views.py
+
+class RatingView(View):
+    
+    def get(self, request):
+        token_str = request.COOKIES.get("access_token")
+        if not token_str:
+            return HttpResponse("No token pls go away", status=403)
+        
+        try:
+            access = AccessToken(token_str)
+            user_id = access["user_id"]
+            current_user = User.objects.get(id=user_id)
+            
+
+            current_profile, _ = UserProfile.objects.get_or_create(user=current_user)
+            
+            all_profiles = UserProfile.objects.select_related('user').all()
+            
+
+            top_players = sorted(
+                all_profiles,
+                key=lambda p: (p.games_won, p.win_rate),
+                reverse=True
+            )
+            
+
+            rating_data = []
+            for index, profile in enumerate(top_players, start=1):
+                rating_data.append({
+                    'rank': index,
+                    'user': profile.user,
+                    'avatar': profile.avatar.url if profile.avatar else None,
+                    'games_played': profile.games_played,
+                    'games_won': profile.games_won,
+                    'win_rate': profile.win_rate,
+                    'is_current_user': profile.user.id == current_user.id,
+                    'is_online': profile.is_online,
+                })
+            
+            current_user_rank = None
+            for item in rating_data:
+                if item['is_current_user']:
+                    current_user_rank = item['rank']
+                    break
+            
+            context = {
+                'current_user': current_user,
+                'current_profile': current_profile,
+                'current_user_rank': current_user_rank,
+                'total_players': len(rating_data),
+                'rating_data': rating_data,
+            }
+            
+            return render(request, 'rating.html', context)
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return HttpResponse(f"Ошибка: {e}", status=403)

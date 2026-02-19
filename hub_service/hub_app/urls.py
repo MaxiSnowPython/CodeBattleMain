@@ -11,4 +11,5 @@ urlpatterns = [
     path("update/", UpdateProfileView.as_view(), name="update_profile"),
     path('chat/history/<str:username>/', ChatHistoryView.as_view(), name='chat_history'),
     path('logout/',LogoutView.as_view(),name="logout"),
+    path('rating/',RatingView.as_view(),name="rating"),
 ]
