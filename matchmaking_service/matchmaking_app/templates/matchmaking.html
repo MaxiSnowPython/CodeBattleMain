@@ -3,285 +3,445 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>ГеймМастер - Поиск игры</title>
-    <style>
-        :root {
-            --sidebar-width: 150px; /* Ширина панели */
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-            /* Фоновое изображение */
-            background-image: url("{% static 'images/ChatBox_image.jpg' %}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-left: calc(var(--sidebar-width) + 20px); /* Отступ основного контента */
-            transition: all 0.3s ease;
-        }
-        
-        .container {
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .welcome-text {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .welcome-text h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-        
-        .greeting {
-            color: #333;
-            font-size: 18px;
-            padding: 15px;
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border-radius: 8px;
-            border: 2px solid #28a745;
-            font-family: monospace;
-        }
-        
-        .greeting strong {
-            color: #28a745;
-            font-size: 20px;
-        }
-        
-        #search-block {
-            text-align: center;
-            background: white;
-            border-radius: 10px;
-            padding: 40px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        #find-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 18px 40px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-        }
-        
-        #find-btn:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
-        }
-        
-        #find-btn:active {
-            transform: translateY(0);
-        }
+    <title>CodeBattle - Поиск игры</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
-        #status-block {
-            text-align: center;
-            background: white;
-            border-radius: 10px;
-            padding: 40px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        #status { 
-            color: #667eea;
-            font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .loader {
-            margin: 0 auto;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .hidden { 
-            display: none;
-        }
-        
-        /* Анимация появления */
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Стили для навигационного бара */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px); /* Эффект размытия как в iOS/Telegram */
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-            border-top: 1px solid #ddd;
-        }
+    :root {
+        --sidebar-width: 220px;
+        --bg-primary: #000000;
+        --bg-secondary: #0a0a0a;
+        --bg-card: #101010;
+        --bg-card-hover: #1a1a1a;
+        --border-color: #1c1c1c;
+        --border-hover: #2a2a2a;
+        --text-primary: #e7e9ea;
+        --text-secondary: #71767b;
+        --text-muted: #3b3b3b;
+        --accent: #a970ff;
+        --accent-dim: rgba(169, 112, 255, 0.08);
+        --accent-glow: rgba(169, 112, 255, 0.2);
+        --accent-solid: rgba(169, 112, 255, 0.15);
+        --danger: #f4212e;
+    }
 
-        .nav-item {
-            text-decoration: none;
-            color: #6c757d;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 12px;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .nav-item i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
+    body {
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 40px 20px;
+        background: var(--bg-primary);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-left: calc(var(--sidebar-width) + 40px);
+        transition: all 0.3s ease;
+        color: var(--text-primary);
+    }
 
-        /* Активный пункт или ховер */
-        .nav-item:hover, .nav-item.active {
-            color: #764ba2; /* Цвет под твой градиент */
-        }
+    .container {
+        max-width: 560px;
+        width: 100%;
+    }
 
+    /* ===== HEADER ===== */
+    .header {
+        background: var(--bg-card);
+        padding: 48px 28px 40px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 16px;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
 
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.6;
+    }
 
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: var(--sidebar-width);
-            background: #ffffff;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            z-index: 1000;
-        }
+    .header h1 {
+        font-family: 'Inter', sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
 
-        .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
-            font-weight: bold;
-            font-size: 22px;
-            color: #764ba2;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .header p {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: var(--text-secondary);
+    }
 
-        .nav-item {
-            text-decoration: none;
-            color: #444;
-            padding: 15px 25px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 18px; /* Шрифт побольше, как ты просил */
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 4px solid transparent;
-        }
+    /* ===== WELCOME ===== */
+    .welcome-text {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+    }
 
-        .nav-item:hover {
-            background: #f8f4ff;
-            color: #764ba2;
-            padding-left: 30px; /* Эффект смещения при наведении */
-        }
+    .welcome-text h2 {
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .nav-item.active {
-            background: #f0ebff;
-            color: #667eea;
-            border-left: 4px solid #667eea;
-        }
+    .greeting {
+        color: var(--text-primary);
+        font-size: 14px;
+        padding: 14px 18px;
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .nav-item .icon {
-            font-size: 24px; /* Размер эмодзи/иконок */
-        }
+    .greeting::before {
+        content: '>';
+        color: var(--accent);
+        margin-right: 8px;
+        font-weight: 700;
+    }
 
-        /* Дополнительный блок снизу (например, выход) */
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 20px;
-            border-top: 1px solid #eee;
-        }
-    </style>
+    .greeting strong {
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    /* ===== SEARCH BLOCK ===== */
+    #search-block {
+        text-align: center;
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 48px 28px;
+        border: 1px solid var(--border-color);
+    }
+
+    #find-btn {
+        background: var(--accent);
+        color: #ffffff;
+        padding: 14px 48px;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        transition: all 0.2s ease;
+        font-family: 'Inter', sans-serif;
+        position: relative;
+    }
+
+    #find-btn:hover {
+        background: #b985ff;
+        box-shadow: 0 0 24px var(--accent-glow), 0 0 80px rgba(169, 112, 255, 0.08);
+        transform: scale(1.02);
+    }
+
+    #find-btn:active {
+        transform: scale(0.98);
+    }
+
+    /* ===== STATUS BLOCK ===== */
+    #status-block {
+        text-align: center;
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 48px 28px;
+        border: 1px solid var(--border-color);
+    }
+
+    #status {
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 28px;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .loader {
+        margin: 0 auto;
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--border-color);
+        border-top: 2px solid var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none; }
+
+    .fade-in {
+        animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+        position: fixed;
+        left: 0; top: 0; bottom: 0;
+        width: var(--sidebar-width);
+        background: var(--bg-primary);
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        z-index: 1000;
+    }
+
+    .sidebar-header {
+        padding: 28px 24px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 700;
+        font-size: 18px;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        letter-spacing: -0.3px;
+    }
+
+    .nav-item {
+        text-decoration: none;
+        color: var(--text-secondary);
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 15px;
+        font-weight: 500;
+        transition: all 0.15s ease;
+        border-radius: 0;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .nav-item:hover {
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+    }
+
+    .nav-item.active {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border-right: 2px solid var(--accent);
+    }
+
+    .nav-item .icon {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+        opacity: 0.85;
+    }
+
+    .sidebar-footer {
+        margin-top: auto;
+        padding: 0;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .sidebar-footer .nav-item {
+        color: var(--text-muted);
+    }
+
+    .sidebar-footer .nav-item:hover {
+        color: var(--danger);
+        background: rgba(244, 33, 46, 0.05);
+    }
+
+    /* ===== BOTTOM NAV (mobile) ===== */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(12px);
+        display: none;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1000;
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+        body { padding-left: 20px; }
+        .sidebar { display: none; }
+        .bottom-nav { display: flex; }
+    }
+    /* ===== LANGUAGE SELECTOR ===== */
+    .lang-section {
+        margin-bottom: 16px;
+    }
+
+    .lang-label {
+        text-align: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--text-muted);
+        margin-bottom: 14px;
+    }
+
+    .lang-grid {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .lang-item {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .lang-item::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .lang-item:hover {
+        border-color: var(--accent);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .lang-item:hover::before {
+        opacity: 0.08;
+    }
+
+    .lang-item:hover .lang-icon {
+        transform: scale(1.1);
+    }
+
+    .lang-icon {
+        font-size: 28px;
+        line-height: 1;
+        transition: transform 0.2s ease;
+        position: relative;
+        z-index: 1;
+    }
+
+    .lang-icon.python { color: #3776ab; }
+    .lang-icon.cpp { color: #00599c; }
+    .lang-icon.java { color: #ed8b00; }
+    .lang-icon.js { color: #f7df1e; }
+
+    .lang-name {
+        position: absolute;
+        bottom: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--text-muted);
+        white-space: nowrap;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+
+    .lang-item:hover .lang-name {
+        opacity: 1;
+        color: var(--accent);
+        bottom: -22px;
+    }
+
+    .lang-wrapper {
+        position: relative;
+        padding-bottom: 8px;
+    }
+</style>
 </head>
 <body>
     <div class="container fade-in">
         <div class="header">
-            <h1>🎮 ГеймМастер</h1>
-            <p>Мировая Арена 2026</p>
+            <h1>CodeBattle</h1>
+            <p>Protocol // Arena 2026</p>
         </div>
-        
+        <div class="lang-section">
+    <div class="lang-label">Select Language</div>
+    <div class="lang-grid">
+        <div class="lang-wrapper">
+            <a href="#" class="lang-item">
+                <svg class="lang-icon python" width="28" height="28" viewBox="0 0 256 255" fill="currentColor"><path d="M126.9 0C62.7 0 66.7 28.2 66.7 28.2l.1 29.2h61.3v8.7H39.3S0 61.5 0 126.6c0 65.1 34.2 62.8 34.2 62.8h20.4v-30.2s-1.1-34.2 33.7-34.2h58c32.3 0 34.4-31.3 34.4-31.3V33.5S185.6 0 126.9 0zM92 19.2a11 11 0 110 22 11 11 0 010-22z"/><path d="M128.6 254.1c64.2 0 60.2-28.2 60.2-28.2l-.1-29.2h-61.3v-8.7h88.8s39.3 4.7 39.3-60.4c0-65.1-34.2-62.8-34.2-62.8H201v30.2s1.1 34.2-33.7 34.2h-58c-32.3 0-34.4 31.3-34.4 31.3v60.2s-5.2 33.4 53.7 33.4zm34.9-19.2a11 11 0 110-22 11 11 0 010 22z"/></svg>
+                <span class="lang-name">Python</span>
+            </a>
+        </div>
+        <div class="lang-wrapper">
+            <a href="#" class="lang-item">
+                <svg class="lang-icon cpp" width="28" height="28" viewBox="0 0 306 344" fill="currentColor"><path d="M302.1 258l-90.6-52.3c3.8-11 5.9-22.8 5.9-35.1 0-57.3-46.5-103.8-103.8-103.8S9.8 113.3 9.8 170.6s46.5 103.8 103.8 103.8c36.2 0 68.1-18.6 86.7-46.7l90.6 52.3c7.3 4.2 16.6 1.7 20.8-5.5 4.2-7.3 1.7-16.6-5.6-20.5zM113.6 236c-36.1 0-65.4-29.3-65.4-65.4s29.3-65.4 65.4-65.4 65.4 29.3 65.4 65.4S149.7 236 113.6 236z"/><path d="M240 148h-14v-14h-16v14h-14v16h14v14h16v-14h14zM296 148h-14v-14h-16v14h-14v16h14v14h16v-14h14z"/></svg>
+                <span class="lang-name">C++</span>
+            </a>
+        </div>
+        <div class="lang-wrapper">
+            <a href="#" class="lang-item">
+                <svg class="lang-icon java" width="28" height="28" viewBox="0 0 256 346" fill="currentColor"><path d="M83 267s-14 8 9 11c28 3 42 3 73-4 0 0 8 5 19 10-68 29-154-2-101-17zM74 230s-15 11 8 14c30 3 53 3 94-5 0 0 6 5 14 8-82 24-174 2-116-17z"/><path d="M143 166c17 19-4 36-4 36s42-22 23-49c-18-26-32-38 43-82 0 0-117 29-62 95zM233 295s10 8-11 15c-39 12-163 16-198 0-12-5 11-13 19-14l12-2c-14-10-91 19-39 27 142 22 258-10 217-26zM89 190s-64 15-23 21c18 2 53 2 86-1 27-3 54-8 54-8l-16 9c-66 17-193 9-156-8 31-15 55-13 55-13zM202 253c67-35 36-68 14-64-5 1-8 2-8 2s2-3 6-5c42-15 74 44-14 67 0 0 1-1 2-2z"/><path d="M162 0s37 37-35 94c-58 46-13 72 0 102-34-31-59-58-42-83C109 77 176 59 162 0z"/><path d="M95 345c64 4 163-2 165-33 0 0-4 11-52 20-53 10-119 9-158 2 0 0 8 7 45 11z"/></svg>
+                <span class="lang-name">Java</span>
+            </a>
+        </div>
+        <div class="lang-wrapper">
+            <a href="#" class="lang-item">
+                <svg class="lang-icon js" width="28" height="28" viewBox="0 0 256 256" fill="currentColor"><path d="M0 0h256v256H0V0zm67 214c4 20 18 30 37 30 20 0 33-10 33-37v-72h-22v71c0 12-5 16-13 16s-14-6-18-14l-17 6zm83-3c5 23 22 34 48 34 25 0 42-13 42-35 0-21-12-31-36-40-18-7-22-10-22-18 0-7 5-11 14-11 10 0 16 4 21 15l19-10c-8-16-20-24-40-24-23 0-39 14-39 34 0 20 12 30 35 39 19 7 23 11 23 19s-6 13-17 13c-13 0-20-7-25-17l-23 1z"/></svg>
+                <span class="lang-name">JS</span>
+            </a>
+        </div>
+    </div>
+</div>
         <div class="welcome-text">
-            <h2>Добро пожаловать в ГеймМастер!</h2>
+            <h2>System Online</h2>
             <div class="greeting">
-                Приветствую, <strong id="player-nick">{{username}}</strong>! 👋
+                Приветствую, <strong id="player-nick">{{username}}</strong>
             </div>
         </div>
         
         <div id="search-block">
-            <button id="find-btn" onclick="startSearch()">🔍 Начать поиск игрока</button>
+            <button id="find-btn" onclick="startSearch()">Начать поиск</button>
         </div>
 
         <div id="status-block" class="hidden">
-            <p id="status">Ищем противника...</p>
+            <p id="status">Поиск противника...</p>
             <div class="loader"></div>
         </div>
     </div>
@@ -291,7 +451,6 @@
         const token = "{{ token }}";
 
         function startSearch() {
-
             document.getElementById('search-block').classList.add('hidden');
             document.getElementById('status-block').classList.remove('hidden');
 
@@ -299,64 +458,55 @@
 
             socket.onopen = function(e) {
                 console.log("Соединение установлено запрос на поиск...");
-
                 socket.send(JSON.stringify({'action': 'find_match'}));
             };
 
             socket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
-                
                 if (data.action === "redirect") {
-                    document.getElementById('status').innerText = "Матч найден Переходим...";
-
+                    document.getElementById('status').innerText = "Матч найден. Переход...";
                     window.location.href = data.url;
                 }
             };
 
             socket.onclose = function(e) {
                 console.log("Соединение закрыто");
-
                 alert("Ошибка связи или неверный токен");
                 location.reload();
             };
         }
     </script>
+
     <nav class="sidebar">
-    <div class="sidebar-header">
-        <span>⚡ CodeBattle</span>
-    </div>
-
-    <a  href="http://match.codebattle.local:8001/match/hub/" class="nav-item" style="color: #dc3545;">
-        <span class="icon">🏟️</span>
-        <span>Арена</span>
-    </a>
-
-    <a  href="http://hub.codebattle.local:8003/profile/" class="nav-item" style="color: #dc3545;">
-        <span class="icon">👤</span>
-        <span>Профиль</span>
-    </a>
-
-    <a href="/leaderboard" class="nav-item">
-        <span class="icon">🏆</span>
-        <span>Рейтинг</span>
-    </a>
-
-    <a href="/history" class="nav-item">
-        <span class="icon">📜</span>
-        <span>История битв</span>
-    </a>
-
-    <a href="/tasks" class="nav-item">
-        <span class="icon">🎯</span>
-        <span>Задания</span>
-    </a>
-
-    <div class="sidebar-footer">
-        <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item" style="color: #dc3545;">
-            <span class="icon">🚪</span>
-            <span>Выйти</span>
+        <div class="sidebar-header">
+            <span>&#9889; CB</span>
+        </div>
+        <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item active">
+            <span class="icon">&#9670;</span>
+            <span>Арена</span>
         </a>
-    </div>
-</nav>
+        <a href="http://hub.codebattle.local:8003/profile/" class="nav-item">
+            <span class="icon">&#9675;</span>
+            <span>Профиль</span>
+        </a>
+        <a href="http://hub.codebattle.local:8003/profile/rating" class="nav-item">
+            <span class="icon">&#9651;</span>
+            <span>Рейтинг</span>
+        </a>
+        <a href="http://game.codebattle.local:8002/game/history" class="nav-item">
+            <span class="icon">&#9707;</span>
+            <span>История</span>
+        </a>
+        <a href="/tasks" class="nav-item">
+            <span class="icon">&#9656;</span>
+            <span>Задания</span>
+        </a>
+        <div class="sidebar-footer">
+            <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item">
+                <span class="icon">&#9109;</span>
+                <span>Выйти</span>
+            </a>
+        </div>
+    </nav>
 </body>
 </html>

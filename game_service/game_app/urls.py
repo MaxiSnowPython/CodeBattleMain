@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import *
 urlpatterns = [
-    
+    path('history/', MatchHistoryView.as_view(), name='match_history'),
     path('<str:match_id>/', GameRoomView.as_view(), name='game_room'),
     path("status/<str:match_id>/", GameRoomResult.as_view()),
+
 ]

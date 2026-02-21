@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>История матчей - {{ username }}</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+        --bg-primary: #000000;
+        --bg-secondary: #0a0a0a;
+        --bg-card: #101010;
+        --bg-card-hover: #1a1a1a;
+        --border-color: #1c1c1c;
+        --border-hover: #2a2a2a;
+        --text-primary: #e7e9ea;
+        --text-secondary: #71767b;
+        --text-muted: #3b3b3b;
+        --accent: #a970ff;
+        --accent-dim: rgba(169, 112, 255, 0.08);
+        --accent-glow: rgba(169, 112, 255, 0.2);
+        --success: #00ba7c;
+        --success-dim: rgba(0, 186, 124, 0.08);
+        --danger: #f4212e;
+        --danger-dim: rgba(244, 33, 46, 0.08);
+        --warning: #ffad1f;
+        --warning-dim: rgba(255, 173, 31, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+        background: var(--bg-card);
+        padding: 36px 28px 32px;
+        border-radius: 16px;
+        text-align: center;
+        margin-bottom: 16px;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        opacity: 0.6;
+    }
+
+    .header h1 {
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
+
+    .header p {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: var(--text-secondary);
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+        background: var(--bg-card);
+        padding: 6px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        gap: 4px;
+    }
+
+    .nav a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 10px 18px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .nav a:hover {
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+    }
+
+    .nav a.active {
+        background: var(--accent-dim);
+        color: var(--accent);
+    }
+
+    /* ===== STATS PANEL ===== */
+    .stats-panel {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        padding: 24px 16px;
+        border-radius: 16px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        transition: border-color 0.15s;
+        border-top: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+    }
+
+    .stat-card:hover {
+        border-color: var(--border-hover);
+    }
+
+    .stat-icon {
+        font-size: 28px;
+        margin-bottom: 10px;
+        opacity: 0.8;
+    }
+
+    .stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+    }
+
+    .stat-card.wins::before { background: var(--success); }
+    .stat-card.wins .stat-value { color: var(--success); }
+
+    .stat-card.losses::before { background: var(--danger); }
+    .stat-card.losses .stat-value { color: var(--danger); }
+
+    .stat-card.total::before { background: var(--accent); }
+    .stat-card.total .stat-value { color: var(--accent); }
+
+    .stat-card.winrate::before { background: var(--warning); }
+    .stat-card.winrate .stat-value { color: var(--warning); }
+
+    /* ===== HISTORY PANEL ===== */
+    .history-panel {
+        background: var(--bg-card);
+        border-radius: 16px;
+        padding: 0;
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .history-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .match-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ===== MATCH CARD ===== */
+    .match-card {
+        display: grid;
+        grid-template-columns: 80px 1fr 180px 140px;
+        align-items: center;
+        padding: 16px 24px;
+        background: transparent;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.15s;
+        border-left: 2px solid transparent;
+    }
+
+    .match-card:last-child { border-bottom: none; }
+
+    .match-card:hover {
+        background: var(--bg-card-hover);
+    }
+
+    .match-card.win {
+        border-left-color: var(--success);
+    }
+
+    .match-card.win:hover {
+        background: var(--success-dim);
+    }
+
+    .match-card.loss {
+        border-left-color: var(--danger);
+    }
+
+    .match-card.loss:hover {
+        background: var(--danger-dim);
+    }
+
+    .match-card.unfinished {
+        border-left-color: var(--warning);
+        opacity: 0.6;
+    }
+
+    .match-card.unfinished:hover {
+        background: var(--warning-dim);
+        opacity: 0.8;
+    }
+
+    /* ===== BADGE ===== */
+    .result-badge {
+        text-align: center;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-weight: 700;
+        font-size: 12px;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.3px;
+    }
+
+    .badge.win {
+        background: var(--success-dim);
+        color: var(--success);
+        border: 1px solid rgba(0, 186, 124, 0.2);
+    }
+
+    .badge.loss {
+        background: var(--danger-dim);
+        color: var(--danger);
+        border: 1px solid rgba(244, 33, 46, 0.2);
+    }
+
+    .badge.unfinished {
+        background: var(--warning-dim);
+        color: var(--warning);
+        border: 1px solid rgba(255, 173, 31, 0.2);
+    }
+
+    /* ===== MATCH INFO ===== */
+    .match-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .opponent {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .task-name {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .match-details {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .match-id {
+        text-align: right;
+    }
+
+    .match-id-text {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-history {
+        text-align: center;
+        padding: 64px 24px;
+        color: var(--text-muted);
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+
+    .empty-history p {
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+        .stats-panel {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .match-card {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .match-id { text-align: left; }
+        .match-details { text-align: left; }
+        .result-badge { text-align: left; }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1>📊 История матчей</h1>
+            <p>Все игры пользователя {{ username }}</p>
+        </div>
+        
+        <!-- Навигация -->
+        <div class="nav">
+            <a href="http://hub.codebattle.local:8003/profile/">👤 Мой профиль</a>
+            <a href="http://hub.codebattle.local:8003/profile/rating/">🏆 Рейтинг</a>
+            <a href="/match/history/" style="background: #f0f0f0;">📊 История</a>
+            <a href="http://match.codebattle.local:8001/match/hub/">🎮 Найти игру</a>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="stats-panel">
+            <div class="stat-card total">
+                <div class="stat-icon">🎮</div>
+                <div class="stat-value">{{ total_matches }}</div>
+                <div class="stat-label">Всего игр</div>
+            </div>
+            
+            <div class="stat-card wins">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">{{ total_wins }}</div>
+                <div class="stat-label">Побед</div>
+            </div>
+            
+            <div class="stat-card losses">
+                <div class="stat-icon">❌</div>
+                <div class="stat-value">{{ total_losses }}</div>
+                <div class="stat-label">Поражений</div>
+            </div>
+            
+            <div class="stat-card winrate">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">{{ win_rate }}%</div>
+                <div class="stat-label">Винрейт</div>
+            </div>
+        </div>
+        
+        <!-- История матчей -->
+        <div class="history-panel">
+            <h2 class="history-title">🕐 История игр ({{ match_history|length }})</h2>
+            
+            {% if match_history %}
+                <div class="match-list">
+                    {% for match in match_history %}
+                    <div class="match-card {{ match.result }}">
+                        <!-- Результат -->
+                        <div class="result-badge">
+                            {% if match.result == 'win' %}
+                                <span class="badge win">✅ Победа</span>
+                            {% elif match.result == 'loss' %}
+                                <span class="badge loss">❌ Поражение</span>
+                            {% else %}
+                                <span class="badge unfinished">⏸️ Не завершено</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Информация о матче -->
+                        <div class="match-info">
+                            <div class="opponent">
+                                {% if match.result == 'win' %}
+                                    ⚔️ vs {{ match.opponent }}
+                                {% else %}
+                                    💀 vs {{ match.opponent }}
+                                {% endif %}
+                            </div>
+                            <div class="task-name">
+                                📝 {{ match.task_title }}
+                            </div>
+                        </div>
+                        
+                        <!-- Детали -->
+                        <div class="match-details">
+                            {% if match.created_at %}
+                                <div>📅 {{ match.created_at|date:"d.m.Y H:i" }}</div>
+                            {% else %}
+                                <div>Матч #{{ forloop.counter }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- ID матча -->
+                        <div class="match-id">
+                            <div class="match-id-text">{{ match.match_id }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-history">
+                    <div class="empty-icon">🎮</div>
+                    <p><strong>История пуста</strong></p>
+                    <p style="font-size: 14px; margin-top: 10px;">Сыграйте первый матч!</p>
+                    <br>
+                    <a href="http://match.codebattle.local:8001/match/hub/" class="button" style="background: #667eea; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block;">
+                        🎮 Начать игру
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

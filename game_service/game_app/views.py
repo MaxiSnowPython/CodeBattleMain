@@ -12,6 +12,8 @@ from .sandbox.sandbox import run_in_sandbox
 from django.core.cache import cache
 from django.http import JsonResponse
 from .kafka_service import kafka_producer
+from django.utils import timezone
+from django.db.models import Q
 # Create your views here.
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -82,7 +84,7 @@ class GameRoomView(View):
             username = access.get("username")
         except TokenError:
             return HttpResponse("❌ JWT истёк")
-        user = User.objects.get(id=user_id) 
+        user = User.objects.get(id=user_id)
         if "leave" in request.POST:
             if room.player1_id == user_id:
                 room.player1 = None
@@ -117,8 +119,10 @@ class GameRoomView(View):
                     passed_all = all(t["passed"] for t in test_results)
 
                     if passed_all and not room.is_finished:
+                        
                         room.is_finished = True
                         room.winner_name = username
+                        room.finished_at = timezone.now()
                         room.save()
                         cache.set(
                             f"match:{room.match_id}:result",
@@ -139,6 +143,7 @@ class GameRoomView(View):
                             "task_id": room.task_id,
                             "task_title": room.task.title
                         }
+                        print(f"🚀 Отправляем в Kafka: winner={winner_id}, loser={loser_id}")
                         kafka_producer.send_event("user_stats", match_result_event)
                         # ----------------------------------------------
 
@@ -189,3 +194,83 @@ class GameRoomResult(View):
         if room.is_finished:
             cache.set(cache_key,data,timeout=600)
         return JsonResponse(data)
+
+
+class MatchHistoryView(View):
+    def get(self, request):
+        token_str = request.COOKIES.get("access_token")
+        if not token_str:
+            return HttpResponse("No token pls go away", status=403)
+        
+        try:
+            access = AccessToken(token_str)
+            user_id = access["user_id"]
+            username = access.get("username", f"user_{user_id}")
+            
+            # Получаем или создаем пользователя
+            user, created = User.objects.get_or_create(id=user_id)
+            if user.username != username:
+                user.username = username
+                user.save()
+            
+            # Получаем ВСЕ матчи пользователя (оптимизация N+1)
+            matches = GameRoom.objects.filter(
+                Q(player1=user) | Q(player2=user)
+            ).select_related(
+                'player1', 'player2', 'task'
+            ).order_by('-id')  # Новые сверху
+            
+            # Формируем данные для истории
+            match_history = []
+            total_wins = 0
+            total_losses = 0
+            
+            for match in matches:
+                # Определяем кто был противником
+                if match.player1 and match.player1.id == user.id:
+                    opponent = match.player2
+                    is_player1 = True
+                else:
+                    opponent = match.player1
+                    is_player1 = False
+                
+                # Определяем результат
+                if match.is_finished:
+                    if match.winner_name == user.username:
+                        result = 'win'
+                        total_wins += 1
+                    else:
+                        result = 'loss'
+                        total_losses += 1
+                else:
+                    result = 'unfinished'
+                
+                match_history.append({
+                    'match_id': match.match_id,
+                    'opponent': opponent.username if opponent else 'Бот',
+                    'task_title': match.task.title if match.task else 'Неизвестная задача',
+                    'result': result,
+                    'is_finished': match.is_finished,
+                    'created_at': match.created_at if hasattr(match, 'created_at') else None,
+                    'finished_at': match.finished_at if hasattr(match, 'finished_at') else None,
+                })
+            
+            # Статистика
+            total_matches = total_wins + total_losses
+            win_rate = round((total_wins / total_matches * 100), 1) if total_matches > 0 else 0
+            
+            context = {
+                'username': user.username,
+                'match_history': match_history,
+                'total_matches': total_matches,
+                'total_wins': total_wins,
+                'total_losses': total_losses,
+                'win_rate': win_rate,
+            }
+            
+            return render(request, 'match_history.html', context)
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return HttpResponse(f"Ошибка: {e}", status=403)

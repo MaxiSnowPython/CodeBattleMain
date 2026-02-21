@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         conf = {
-            'bootstrap.servers': 'localhost:9092',
+            'bootstrap.servers': 'localhost:29092',
             'group.id': 'profile-update-group',
             'auto.offset.reset': 'earliest',
         }
