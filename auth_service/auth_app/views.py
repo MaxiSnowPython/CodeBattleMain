@@ -14,9 +14,7 @@ class RegView(FormView):
     form_class = UserCreationForm
     def form_valid(self, form):
         user = form.save()
-        login(self.request,user)
         refresh = RefreshToken.for_user(user)
-        refresh['username']=user.username
         access_token = str(refresh.access_token)
         print("Zaregalsa")
         response = HttpResponseRedirect("http://match.codebattle.local:8001/match/hub/")
@@ -25,20 +23,20 @@ class RegView(FormView):
             domain=".codebattle.local",
             value = access_token,
             httponly = True,
+            secure=False,
             samesite = "Lax"
 
         )
         return response
     def form_invalid(self, form):
-        return FormView.form_invalid(self,form)
+        return super().form_invalid(form)
     
 class LogView(LoginView):
     template_name = 'log_form.html'
     def form_valid(self, form):
         user = form.get_user()
-        login(self.request,user)
         refresh = RefreshToken.for_user(user)
-        refresh['username']=user.username
+        refresh['username']= user.username
         access_token = str(refresh.access_token)
         print("Zaloginilsa")
         response = HttpResponseRedirect("http://match.codebattle.local:8001/match/hub/")
@@ -54,4 +52,6 @@ class LogView(LoginView):
         )
         return response
     def form_invalid(self, form):
-        return FormView.form_invalid(self,form)
+        return super().form_invalid(form)
+
+

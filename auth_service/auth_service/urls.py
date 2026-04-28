@@ -20,4 +20,5 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/',include("auth_app.urls")),
+    path('', include('django_prometheus.urls')),
 ]

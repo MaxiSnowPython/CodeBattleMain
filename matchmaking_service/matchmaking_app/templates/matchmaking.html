@@ -446,36 +446,35 @@
         </div>
     </div>
 
-    <script>
-        let socket = null;
-        const token = "{{ token }}";
+<script>
+let socket = null;
+function startSearch() {
+    const btn = document.getElementById('find-btn');
+    btn.disabled = true;  // сразу блокируем
 
-        function startSearch() {
-            document.getElementById('search-block').classList.add('hidden');
-            document.getElementById('status-block').classList.remove('hidden');
+    document.getElementById('search-block').classList.add('hidden');
+    document.getElementById('status-block').classList.remove('hidden');
 
-            socket = new WebSocket(`ws://match.codebattle.local:8001/ws/match/?token=${token}`);
+    socket = new WebSocket("ws://match.codebattle.local:8001/ws/match/");
 
-            socket.onopen = function(e) {
-                console.log("Соединение установлено запрос на поиск...");
-                socket.send(JSON.stringify({'action': 'find_match'}));
-            };
+    socket.onopen = function () {
+        socket.send(JSON.stringify({ action: "find_match" }));
+    };
 
-            socket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                if (data.action === "redirect") {
-                    document.getElementById('status').innerText = "Матч найден. Переход...";
-                    window.location.href = data.url;
-                }
-            };
-
-            socket.onclose = function(e) {
-                console.log("Соединение закрыто");
-                alert("Ошибка связи или неверный токен");
-                location.reload();
-            };
+    socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        if (data.action === "redirect") {
+            window.location.href = data.url;
         }
-    </script>
+    };
+
+    socket.onerror = function() {
+        btn.disabled = false;
+        document.getElementById('search-block').classList.remove('hidden');
+        document.getElementById('status-block').classList.add('hidden');
+    };
+}
+</script>
 
     <nav class="sidebar">
         <div class="sidebar-header">
