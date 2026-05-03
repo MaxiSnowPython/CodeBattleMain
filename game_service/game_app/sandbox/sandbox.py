@@ -21,12 +21,17 @@ def run_in_sandbox(user_code: str, tests: list) -> dict:
             result = subprocess.run(
                 [
                     "docker", "run", "--rm",
+                    "--memory", "128m",
+                    "--memory-swap", "128m",
+                    "--cpus", "0.5",
+                    "--pids-limit", "64",
+                    "--network", "none",
                     "-v", f"{tmp_path}:/sandbox",
                     DOCKER_IMAGE
                 ],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=10
             )
             
             print(f"🐳 Docker exit code: {result.returncode}")

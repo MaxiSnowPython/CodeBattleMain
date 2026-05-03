@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 
-
 # Create your views here.
 
 class RegView(FormView):
@@ -53,5 +52,4 @@ class LogView(LoginView):
         return response
     def form_invalid(self, form):
         return super().form_invalid(form)
-
 

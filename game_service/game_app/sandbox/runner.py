@@ -1,7 +1,17 @@
 import json
 import sys
+import signal
 import inspect
 from pathlib import Path
+
+EXEC_TIMEOUT = 3  # секунды на весь exec() пользователя
+TEST_TIMEOUT = 2  # секунды на один тест
+
+class TimeoutError(Exception):
+    pass
+
+def _timeout_handler(signum, frame):
+    raise TimeoutError("Time limit exceeded")
 
 def main():
     try:
@@ -15,11 +25,17 @@ def main():
         user_code = code_file.read_text(encoding="utf-8")
         tests = json.loads(tests_file.read_text(encoding="utf-8"))
 
-        # Пространство имен для выполнения кода
         namespace = {}
         try:
+            signal.signal(signal.SIGALRM, _timeout_handler)
+            signal.alarm(EXEC_TIMEOUT)
             exec(user_code, namespace)
+            signal.alarm(0)
+        except TimeoutError:
+            print(json.dumps([{"passed": False, "error": "Time limit exceeded"}]))
+            return
         except Exception as e:
+            signal.alarm(0)
             print(json.dumps([{"passed": False, "error": f"Syntax error: {e}"}]))
             return
 
@@ -41,15 +57,24 @@ def main():
             variables = test.get("variables", {})
             expected = test.get("expected")
             try:
-                # ВЫЗЫВАЕМ ФУНКЦИЮ
+                signal.signal(signal.SIGALRM, _timeout_handler)
+                signal.alarm(TEST_TIMEOUT)
                 actual = user_func(**variables)
+                signal.alarm(0)
                 results.append({
                     "test_num": i + 1,
                     "passed": actual == expected,
                     "expected": expected,
                     "actual": actual
                 })
+            except TimeoutError:
+                results.append({
+                    "test_num": i + 1,
+                    "passed": False,
+                    "error": "Time limit exceeded"
+                })
             except Exception as e:
+                signal.alarm(0)
                 results.append({
                     "test_num": i + 1,
                     "passed": False,
