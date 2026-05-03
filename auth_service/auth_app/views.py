@@ -8,9 +8,9 @@ from django.contrib.auth.views import LoginView
 
 COOKIE_SETTINGS = {
     "httponly": True,
-    "secure": False,
+    "secure": os.environ.get("SECURE_COOKIES", "False") == "True",
     "samesite": "Lax",
-    "domain": ".codebattle.local",
+    "domain": os.environ.get("COOKIE_DOMAIN", ".codebattle.local"),
 }
 
 
@@ -30,7 +30,7 @@ class RegView(FormView):
 
     def form_valid(self, form):
         user = form.save()
-        response = HttpResponseRedirect("http://match.codebattle.local:8001/match/hub/")
+        response = HttpResponseRedirect(os.environ.get("MATCH_URL", "") + "/match/hub/")
         set_auth_cookies(response, user)
         return response
 
@@ -43,7 +43,7 @@ class LogView(LoginView):
 
     def form_valid(self, form):
         user = form.get_user()
-        response = HttpResponseRedirect("http://match.codebattle.local:8001/match/hub/")
+        response = HttpResponseRedirect(os.environ.get("MATCH_URL", "") + "/match/hub/")
         set_auth_cookies(response, user)
         return response
 

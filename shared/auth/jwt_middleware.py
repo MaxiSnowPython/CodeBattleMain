@@ -7,9 +7,9 @@ User = get_user_model()
 
 COOKIE_SETTINGS = {
     "httponly": True,
-    "secure": False,
+    "secure": os.environ.get("SECURE_COOKIES", "False") == "True",
     "samesite": "Lax",
-    "domain": ".codebattle.local",
+    "domain": os.environ.get("COOKIE_DOMAIN", ".codebattle.local"),
 }
 
 

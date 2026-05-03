@@ -84,7 +84,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
             )
 
     async def match_found(self, event):
-        game_url = f"http://game.codebattle.local:8002/game/{event['match_id']}"
+        game_url = os.environ.get("GAME_URL", "") + f"/game/{event['match_id']}"
         await self.send(text_data=json.dumps({
             "action": "redirect",
             "url": game_url

@@ -1,4 +1,5 @@
 import json
+import os
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from confluent_kafka import Consumer, KafkaError
@@ -10,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         conf = {
-            'bootstrap.servers': 'localhost:29092',
+            'bootstrap.servers': os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092"),
             'group.id': 'profile-update-group',
             'auto.offset.reset': 'earliest',
         }

@@ -24,20 +24,8 @@ sys.path.append(str(CODEBATTLE_DIR))
 load_dotenv(CODEBATTLE_DIR / ".env")
 
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = [
-    'auth.codebattle.local',
-    'match.codebattle.local',
-    'game.codebattle.local',
-    'hub.codebattle.local',
-    'localhost',
-    '127.0.0.1',
-    '*',
-    '172.20.10.2',
-]
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(",")
 
 # Application definition
 
@@ -77,13 +65,12 @@ MIDDLEWARE = [
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://auth.codebattle.local:8000",
-    "http://match.codebattle.local:8001",
-    "http://game.codebattle.local:8002",
-    "http://hub.codebattle.local:8003",
-    "http://127.0.0.1:8000",
-]
+CORS_ALLOWED_ORIGINS = [u for u in [
+    os.environ.get("AUTH_URL"),
+    os.environ.get("MATCH_URL"),
+    os.environ.get("GAME_URL"),
+    os.environ.get("HUB_URL"),
+] if u]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -165,11 +152,11 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
-CSRF_TRUSTED_ORIGINS = [
-    'http://auth.codebattle.local:8000',
-    'http://match.codebattle.local:8001',
-    'http://game.codebattle.local:8002',
-    'http://hub.codebattle.local:8003',
-]
-CSRF_COOKIE_DOMAIN = ".codebattle.local"
-SESSION_COOKIE_DOMAIN = ".codebattle.local"
+CSRF_TRUSTED_ORIGINS = [u for u in [
+    os.environ.get("AUTH_URL"),
+    os.environ.get("MATCH_URL"),
+    os.environ.get("GAME_URL"),
+    os.environ.get("HUB_URL"),
+] if u]
+CSRF_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", ".codebattle.local")
+SESSION_COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", ".codebattle.local")

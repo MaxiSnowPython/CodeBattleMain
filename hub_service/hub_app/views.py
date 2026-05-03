@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views import View
@@ -300,7 +301,7 @@ class LogoutView(View):
             except Exception:
                 pass
 
-        response = HttpResponseRedirect("http://auth.codebattle.local:8000/auth/login/")
+        response = HttpResponseRedirect(os.environ.get("AUTH_URL", "") + "/auth/login/")
         print(f"ydalen{username}")
         response.delete_cookie('access_token')
         

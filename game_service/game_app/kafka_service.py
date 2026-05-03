@@ -1,11 +1,12 @@
 import json
+import os
 from confluent_kafka import Producer
 from django.conf import settings
 
 class KafkaProducerService:
     def __init__(self):
         conf = {
-            'bootstrap.servers': 'localhost:29092', # Для Docker используй kafka:9092 если Django тоже в докере
+            'bootstrap.servers': os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092"),
             'client.id': 'django-backend'
         }
         self.producer = Producer(conf)
