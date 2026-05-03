@@ -13,19 +13,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import sys
-
-
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent 
+BASE_DIR = Path(__file__).resolve().parent.parent
 CODEBATTLE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(CODEBATTLE_DIR))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+load_dotenv(CODEBATTLE_DIR / ".env")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$2p@0f_uh+mmw+2s@3@+dxqw)%wej9ls0y90iqtkqj6_^0io^8'
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -164,8 +162,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME":timedelta(minutes=120)
-
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 CSRF_TRUSTED_ORIGINS = [
     'http://auth.codebattle.local:8000',

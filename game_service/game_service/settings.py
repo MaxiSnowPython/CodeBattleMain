@@ -13,16 +13,16 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import sys
 import os
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent 
+BASE_DIR = Path(__file__).resolve().parent.parent
 CODEBATTLE_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(CODEBATTLE_DIR))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+load_dotenv(CODEBATTLE_DIR / ".env")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$2p@0f_uh+mmw+2s@3@+dxqw)%wej9ls0y90iqtkqj6_^0io^8'
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -153,7 +153,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": f"redis://{os.environ.get('REDIS_HOST', '127.0.0.1')}:{os.environ.get('REDIS_PORT', '6379')}/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

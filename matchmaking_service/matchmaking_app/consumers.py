@@ -1,5 +1,6 @@
 import json
 import uuid
+import os
 import redis
 
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -44,7 +45,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
         if data.get("action") != "find_match":
             return
 
-        r = redis.Redis(host="127.0.0.1", port=6379, db=0)
+        r = redis.Redis(host=os.environ.get("REDIS_HOST", "127.0.0.1"), port=int(os.environ.get("REDIS_PORT", 6379)), db=0)
 
         queue = r.lrange("match_queue", 0, -1)
         print(f"🔍 Очередь до добавления: {queue}")
@@ -90,7 +91,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
-        r = redis.Redis(host="127.0.0.1", port=6379, db=0)
+        r = redis.Redis(host=os.environ.get("REDIS_HOST", "127.0.0.1"), port=int(os.environ.get("REDIS_PORT", 6379)), db=0)
         user = getattr(self, "user", None)
         if user:
             r.lrem("match_queue", 1, user.id)
