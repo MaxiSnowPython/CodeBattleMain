@@ -972,6 +972,13 @@
         function inviteToGame(username) {
             alert(`Приглашение отправлено ${username}`);
         }
+
+        // Presence — онлайн пока страница открыта
+        const presenceSocket = new WebSocket("ws://hub.codebattle.local:8003/ws/presence/");
+        presenceSocket.onclose = () => {
+            // переподключение если соединение упало
+            setTimeout(() => new WebSocket("ws://hub.codebattle.local:8003/ws/presence/"), 3000);
+        };
     </script>
 
     <nav class="sidebar">

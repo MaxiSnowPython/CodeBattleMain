@@ -7,7 +7,7 @@ django.setup()
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import path
-from hub_app.consumers import ChatConsumer
+from hub_app.consumers import ChatConsumer, PresenceConsumer
 from shared.auth.jwt_ws_middleware import JWTWebSocketMiddleware
 
 application = ProtocolTypeRouter({
@@ -15,6 +15,7 @@ application = ProtocolTypeRouter({
     "websocket": JWTWebSocketMiddleware(
         URLRouter([
             path("ws/chat/<str:username>/", ChatConsumer.as_asgi()),
+            path("ws/presence/", PresenceConsumer.as_asgi()),
         ])
     ),
 })

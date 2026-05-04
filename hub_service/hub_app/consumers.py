@@ -3,9 +3,32 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
-from .models import Message
+from .models import Message, UserProfile
 
 User = get_user_model()
+
+
+class PresenceConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope["user"]
+        if self.user is None or self.user.is_anonymous:
+            await self.close()
+            return
+        await self.accept()
+        await self.set_online(True)
+
+    async def disconnect(self, close_code):
+        if hasattr(self, "user") and not self.user.is_anonymous:
+            await self.set_online(False)
+
+    async def receive(self, text_data):
+        pass
+
+    @database_sync_to_async
+    def set_online(self, status):
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        profile.is_online = status
+        profile.save(update_fields=["is_online"])
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):

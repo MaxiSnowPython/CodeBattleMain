@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 User = get_user_model()
 
@@ -27,6 +29,12 @@ class UserProfile(models.Model):
         return None
     def __str__(self):
         return f"Profile - {self.user.username}"
+
+
+@receiver(post_delete, sender='hub_app.UserProfile')
+def delete_avatar_on_profile_delete(sender, instance, **kwargs):
+    if instance.avatar:
+        instance.avatar.delete(save=False)
 
 
 class Friendship(models.Model):

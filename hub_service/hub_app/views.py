@@ -33,9 +33,6 @@ class ProfileView(View):
             
             # Получаем или создаем профиль
             profile, created = UserProfile.objects.get_or_create(user=user)
-            if not profile.is_online:
-                profile.is_online = True
-                profile.save(update_fields=["is_online"])
 
             
             # Получаем список друзей
@@ -249,6 +246,8 @@ class UpdateProfileView(View):
             
             # Обновляем аватар если загружен
             if 'avatar' in request.FILES:
+                if profile.avatar:
+                    profile.avatar.delete(save=False)
                 profile.avatar = request.FILES['avatar']
                 profile.save()
             
