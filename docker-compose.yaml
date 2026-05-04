@@ -20,6 +20,23 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
 
+volumes:
+  postgres_data:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: codebattle
+      POSTGRES_PASSWORD: codebattle
+      POSTGRES_MULTIPLE_DATABASES: auth_db,matchmaking_db,game_db,hub_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/pg-init.sh:/docker-entrypoint-initdb.d/pg-init.sh
+
   redis:
     image: redis:7-alpine
     container_name: redis
