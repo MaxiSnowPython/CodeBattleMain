@@ -1,3 +1,4 @@
+import os
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.contrib.auth.models import AnonymousUser

@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
-
+import os
 COOKIE_SETTINGS = {
     "httponly": True,
     "secure": os.environ.get("SECURE_COOKIES", "False") == "True",
