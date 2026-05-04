@@ -1,0 +1,48 @@
+# Russian translations for matchmaking_service
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+
+msgid "CodeBattle - Find Game"
+msgstr "CodeBattle - Поиск игры"
+
+msgid "Select Language"
+msgstr "Выбор языка"
+
+msgid "Welcome,"
+msgstr "Приветствую,"
+
+msgid "Find Match"
+msgstr "Начать поиск"
+
+msgid "Searching for opponent..."
+msgstr "Поиск противника..."
+
+msgid "In Development"
+msgstr "В разработке"
+
+msgid "Arena"
+msgstr "Арена"
+
+msgid "Profile"
+msgstr "Профиль"
+
+msgid "Rating"
+msgstr "Рейтинг"
+
+msgid "History"
+msgstr "История"
+
+msgid "Tasks"
+msgstr "Задания"
+
+msgid "Sign Out"
+msgstr "Выйти"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Russian"
+msgstr "Русский"

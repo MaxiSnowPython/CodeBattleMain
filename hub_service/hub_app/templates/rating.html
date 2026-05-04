@@ -1,8 +1,10 @@
+{% load i18n %}
+{% get_current_language as current_lang %}
 <!DOCTYPE html>
-<html>
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Рейтинг игроков - CodeBattle</title>
+    <title>{% trans "Player Rating - CodeBattle" %}</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -392,38 +394,43 @@
     <div class="container">
         <!-- Заголовок -->
         <div class="header">
-            <h1>🏆 Рейтинг игроков</h1>
-            <p>Топ лучших программистов CodeBattle</p>
+            <h1>🏆 {% trans "Player Rating" %}</h1>
+            <p>{% trans "Top CodeBattle Programmers" %}</p>
         </div>
-        
+
         <!-- Навигация -->
         <div class="nav">
-            <a href="/profile/">👤 Мой профиль</a>
-            <a href="/rating/" style="background: #f0f0f0;">🏆 Рейтинг</a>
-          <a href="http://game.codebattle.local:8002/game/history/">📊 История</a>
-            <a href="http://match.codebattle.local:8001/match/hub/">🎮 Найти игру</a>
-  
+            <a href="/profile/">👤 {% trans "My Profile" %}</a>
+            <a href="/rating/" style="background: #f0f0f0;">🏆 {% trans "Rating" %}</a>
+            <a href="http://game.codebattle.local:8002/game/history/">📊 {% trans "History" %}</a>
+            <a href="http://match.codebattle.local:8001/match/hub/">🎮 {% trans "Find Game" %}</a>
+            <form action="/i18n/setlang/" method="post" style="display:inline; margin-left:auto;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" name="language" value="en" style="background:{% if current_lang == 'en' %}#667eea{% else %}#f8f9fa{% endif %}; border:1px solid #ddd; color:{% if current_lang == 'en' %}white{% else %}#333{% endif %}; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:600;">EN</button>
+                <button type="submit" name="language" value="ru" style="background:{% if current_lang == 'ru' %}#667eea{% else %}#f8f9fa{% endif %}; border:1px solid #ddd; color:{% if current_lang == 'ru' %}white{% else %}#333{% endif %}; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:600;">RU</button>
+            </form>
         </div>
         
         <!-- Карточка текущего пользователя -->
         <div class="current-user-card">
-            <h3>👑 Ваша позиция</h3>
+            <h3>👑 {% trans "Your Position" %}</h3>
             <div class="current-user-stats">
                 <div class="stat-box">
                     <div class="stat-value">#{{ current_user_rank|default:"—" }}</div>
-                    <div class="stat-label">Место</div>
+                    <div class="stat-label">{% trans "Place" %}</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value">{{ current_profile.games_played }}</div>
-                    <div class="stat-label">Игр</div>
+                    <div class="stat-label">{% trans "games" %}</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value">{{ current_profile.games_won }}</div>
-                    <div class="stat-label">Побед</div>
+                    <div class="stat-label">{% trans "wins" %}</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value">{{ current_profile.win_rate }}%</div>
-                    <div class="stat-label">Винрейт</div>
+                    <div class="stat-label">{% trans "Win Rate" %}</div>
                 </div>
             </div>
         </div>
@@ -460,7 +467,7 @@
                             <div>
                                 <div class="player-name">
                                     {{ player.user.username }}
-                                    {% if player.is_current_user %}(Вы){% endif %}
+                                    {% if player.is_current_user %}({% trans "You" %}){% endif %}
                                     <span class="online-indicator {% if player.is_online %}online{% else %}offline{% endif %}"></span>
                                 </div>
                             </div>
@@ -469,17 +476,17 @@
                         <!-- Статистика -->
                         <div class="stat-cell">
                             <strong>{{ player.games_played }}</strong><br>
-                            <small>игр</small>
+                            <small>{% trans "games" %}</small>
                         </div>
-                        
+
                         <div class="stat-cell">
                             <strong>{{ player.games_won }}</strong><br>
-                            <small>побед</small>
+                            <small>{% trans "wins" %}</small>
                         </div>
-                        
+
                         <div class="stat-cell">
                             <strong>{{ player.games_played|add:"-"|add:player.games_won }}</strong><br>
-                            <small>поражений</small>
+                            <small>{% trans "losses" %}</small>
                         </div>
                         
                         <!-- Винрейт -->
@@ -495,8 +502,8 @@
             {% else %}
                 <div class="empty-rating">
                     <div class="empty-rating-icon">🎮</div>
-                    <p>Рейтинг пока пуст</p>
-                    <p style="font-size: 14px; margin-top: 10px;">Сыграйте первую игру!</p>
+                    <p>{% trans "Rating is empty" %}</p>
+                    <p style="font-size: 14px; margin-top: 10px;">{% trans "Play your first match!" %}</p>
                 </div>
             {% endif %}
         </div>

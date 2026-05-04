@@ -1,9 +1,10 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as current_lang %}
 <!DOCTYPE html>
-<html>
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>CodeBattle - Профиль</title>
+    <title>{% trans "CodeBattle - Profile" %}</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -751,7 +752,7 @@
 <body>
      <div class="container">
         <div class="header">
-            <h1>Профиль</h1>
+            <h1>{% trans "Profile" %}</h1>
             <p>{{ username }} // CodeBattle</p>
         </div>
 
@@ -789,53 +790,53 @@
                 <div class="profile-stats">
                     <div class="stat-item">
                         <div class="stat-value">{{ games_played }}</div>
-                        <div class="stat-label">Игр</div>
+                        <div class="stat-label">{% trans "Games" %}</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value">{{ games_won }}</div>
-                        <div class="stat-label">Побед</div>
+                        <div class="stat-label">{% trans "Wins" %}</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value">{{ friends_count }}</div>
-                        <div class="stat-label">Друзей</div>
+                        <div class="stat-label">{% trans "Friends" %}</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-value">52%</div>
-                        <div class="stat-label">Вин-Рейт</div>
+                        <div class="stat-label">{% trans "Win Rate" %}</div>
                     </div>
                 </div>
 
                 <div class="profile-actions">
-                    <button class="button button-secondary">Настройки</button>
-                    <a href="http://match.codebattle.local:8001/match/hub/?token={{ token }}" class="button">Начать игру</a>
-                    <a href="#" class="button button-danger">Выйти</a>
+                    <button class="button button-secondary">{% trans "Settings" %}</button>
+                    <a href="http://match.codebattle.local:8001/match/hub/?token={{ token }}" class="button">{% trans "Start Game" %}</a>
+                    <a href="#" class="button button-danger">{% trans "Sign Out" %}</a>
                 </div>
             </div>
 
             <div class="friends-panel">
                 <div class="friends-header">
-                    <h3>Друзья ({{ friends_count }})</h3>
+                    <h3>{% blocktrans with count=friends_count %}Friends ({{ count }}){% endblocktrans %}</h3>
                 </div>
 
                 {% if friend_requests_count > 0 %}
                 <div class="friend-requests">
-                    <h4>Новые запросы ({{ friend_requests_count }})</h4>
+                    <h4>{% blocktrans with count=friend_requests_count %}New Requests ({{ count }}){% endblocktrans %}</h4>
                     {% for request in friend_requests %}
                     <div class="request-item">
                         <div class="request-info">
                             <img src="{{ request.from_user.profile.avatar_url|default:'https://via.placeholder.com/40' }}" 
                                  alt="{{ request.from_user.username }}" 
                                  class="request-avatar">
-                            <span><strong>{{ request.from_user.username }}</strong> хочет добавить вас</span>
+                            <span><strong>{{ request.from_user.username }}</strong> {% trans "wants to add you" %}</span>
                         </div>
                         <div class="request-actions">
                             <form method="POST" action="{% url 'accept_friend' request.id %}?token={{ token }}" style="display: inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn-small btn-accept">Принять</button>
+                                <button type="submit" class="btn-small btn-accept">{% trans "Accept" %}</button>
                             </form>
                             <form method="POST" action="{% url 'reject_friend' request.id %}?token={{ token }}" style="display: inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn-small btn-reject">Отклонить</button>
+                                <button type="submit" class="btn-small btn-reject">{% trans "Decline" %}</button>
                             </form>
                         </div>
                     </div>
@@ -845,8 +846,8 @@
 
                 <form method="POST" action="{% url 'add_friend' %}?token={{ token }}" class="add-friend-form">
                     {% csrf_token %}
-                    <input type="text" name="username" placeholder="Имя пользователя..." class="add-friend-input" required>
-                    <button type="submit" class="add-friend-btn">Добавить</button>
+                    <input type="text" name="username" placeholder="{% trans 'Username...' %}" class="add-friend-input" required>
+                    <button type="submit" class="add-friend-btn">{% trans "Add" %}</button>
                 </form>
 
                 <div class="friends-list">
@@ -858,7 +859,7 @@
                                 <div class="friend-name">{{ friend.username }}</div>
                                 <div class="friend-status {% if friend.is_online %}status-online{% else %}status-offline{% endif %}">
                                     <span class="status-indicator {% if friend.is_online %}online{% else %}offline{% endif %}"></span>
-                                    {% if friend.is_online %}В сети{% else %}Не в сети{% endif %}
+                                    {% if friend.is_online %}{% trans "Online" %}{% else %}{% trans "Offline" %}{% endif %}
                                 </div>
                             </div>
                             <div class="friend-actions">
@@ -866,7 +867,7 @@
                                 <button class="action-btn" onclick="inviteToGame('{{ friend.username }}')">&#9654;</button>
                                 <form method="POST" action="{% url 'remove_friend' friend.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="action-btn action-btn-danger" onclick="return confirm('Удалить {{ friend.username }} из друзей?')">&#10005;</button>
+                                    <button type="submit" class="action-btn action-btn-danger" onclick="return confirm('{% blocktrans with username=friend.username %}Remove {{ username }} from friends?{% endblocktrans %}')">&#10005;</button>
                                 </form>
                             </div>
                         </div>
@@ -874,8 +875,8 @@
                     {% else %}
                         <div class="empty-friends">
                             <div class="empty-friends-icon">--</div>
-                            <p>У вас пока нет друзей</p>
-                            <p style="font-size: 12px; margin-top: 10px;">Добавьте друзей, чтобы играть вместе</p>
+                            <p>{% trans "You have no friends yet" %}</p>
+                            <p style="font-size: 12px; margin-top: 10px;">{% trans "Add friends to play together" %}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -885,12 +886,12 @@
 
     <div id="chat-window">
         <div class="chat-header">
-            <h4 id="chat-user-title">Чат</h4>
+            <h4 id="chat-user-title">{% trans "Chat" %}</h4>
             <button class="close-chat" onclick="closeChat()">&#10005;</button>
         </div>
         <div id="chat-messages"></div>
         <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Сообщение..." autocomplete="off">
+            <input type="text" id="chat-input" placeholder="{% trans 'Message...' %}" autocomplete="off">
             <button class="chat-send-btn" id="chat-send">&#10148;</button>
         </div>
     </div>
@@ -984,23 +985,29 @@
     <nav class="sidebar">
         <div class="sidebar-header">&#9889; CB</div>
         <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item">
-            <span class="icon">&#9670;</span><span>Арена</span>
+            <span class="icon">&#9670;</span><span>{% trans "Arena" %}</span>
         </a>
         <a href="http://hub.codebattle.local:8003/profile/" class="nav-item active">
-            <span class="icon">&#9675;</span><span>Профиль</span>
+            <span class="icon">&#9675;</span><span>{% trans "Profile" %}</span>
         </a>
         <a href="http://hub.codebattle.local:8003/profile/rating" class="nav-item">
-            <span class="icon">&#9651;</span><span>Рейтинг</span>
+            <span class="icon">&#9651;</span><span>{% trans "Rating" %}</span>
         </a>
         <a href="http://game.codebattle.local:8002/game/history" class="nav-item">
-            <span class="icon">&#9707;</span><span>История</span>
+            <span class="icon">&#9707;</span><span>{% trans "History" %}</span>
         </a>
         <a href="/tasks" class="nav-item">
-            <span class="icon">&#9656;</span><span>Задания</span>
+            <span class="icon">&#9656;</span><span>{% trans "Tasks" %}</span>
         </a>
         <div class="sidebar-footer">
+            <form action="/i18n/setlang/" method="post" style="padding: 8px 16px; display: flex; gap: 6px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" name="language" value="en" style="flex:1; background:{% if current_lang == 'en' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">EN</button>
+                <button type="submit" name="language" value="ru" style="flex:1; background:{% if current_lang == 'ru' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">RU</button>
+            </form>
             <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item">
-                <span class="icon">&#9109;</span><span>Выйти</span>
+                <span class="icon">&#9109;</span><span>{% trans "Sign Out" %}</span>
             </a>
         </div>
     </nav>

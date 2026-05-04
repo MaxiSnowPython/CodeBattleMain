@@ -1,0 +1,132 @@
+# Russian translations for hub_service
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+
+msgid "CodeBattle - Profile"
+msgstr "CodeBattle - Профиль"
+
+msgid "Profile"
+msgstr "Профиль"
+
+msgid "Games"
+msgstr "Игр"
+
+msgid "Wins"
+msgstr "Побед"
+
+msgid "Friends"
+msgstr "Друзей"
+
+msgid "Win Rate"
+msgstr "Вин-Рейт"
+
+msgid "Settings"
+msgstr "Настройки"
+
+msgid "Start Game"
+msgstr "Начать игру"
+
+msgid "Sign Out"
+msgstr "Выйти"
+
+msgid "Friends (%(count)s)"
+msgstr "Друзья (%(count)s)"
+
+msgid "New Requests (%(count)s)"
+msgstr "Новые запросы (%(count)s)"
+
+msgid "%(username)s wants to add you"
+msgstr "%(username)s хочет добавить вас"
+
+msgid "Accept"
+msgstr "Принять"
+
+msgid "Decline"
+msgstr "Отклонить"
+
+msgid "Username..."
+msgstr "Имя пользователя..."
+
+msgid "Add"
+msgstr "Добавить"
+
+msgid "Online"
+msgstr "В сети"
+
+msgid "Offline"
+msgstr "Не в сети"
+
+msgid "You have no friends yet"
+msgstr "У вас пока нет друзей"
+
+msgid "Add friends to play together"
+msgstr "Добавьте друзей, чтобы играть вместе"
+
+msgid "Remove %(username)s from friends?"
+msgstr "Удалить %(username)s из друзей?"
+
+msgid "Chat"
+msgstr "Чат"
+
+msgid "Message..."
+msgstr "Сообщение..."
+
+msgid "Arena"
+msgstr "Арена"
+
+msgid "Rating"
+msgstr "Рейтинг"
+
+msgid "History"
+msgstr "История"
+
+msgid "Tasks"
+msgstr "Задания"
+
+msgid "Player Rating - CodeBattle"
+msgstr "Рейтинг игроков - CodeBattle"
+
+msgid "Player Rating"
+msgstr "Рейтинг игроков"
+
+msgid "Top CodeBattle Programmers"
+msgstr "Топ лучших программистов CodeBattle"
+
+msgid "My Profile"
+msgstr "Мой профиль"
+
+msgid "Find Game"
+msgstr "Найти игру"
+
+msgid "games"
+msgstr "игр"
+
+msgid "wins"
+msgstr "побед"
+
+msgid "losses"
+msgstr "поражений"
+
+msgid "Rating is empty"
+msgstr "Рейтинг пока пуст"
+
+msgid "Your Position"
+msgstr "Ваша позиция"
+
+msgid "Place"
+msgstr "Место"
+
+msgid "You"
+msgstr "Вы"
+
+msgid "wants to add you"
+msgstr "хочет добавить вас"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Russian"
+msgstr "Русский"

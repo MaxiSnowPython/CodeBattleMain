@@ -1,8 +1,10 @@
+{% load i18n %}
+{% get_current_language as current_lang %}
 <!DOCTYPE html>
-<html>
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>История матчей - {{ username }}</title>
+    <title>{% blocktrans with username=username %}Match History - {{ username }}{% endblocktrans %}</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -353,22 +355,38 @@
         .match-details { text-align: left; }
         .result-badge { text-align: left; }
     }
+    .lang-switcher-float {
+        position: fixed; top: 12px; right: 16px;
+        display: flex; gap: 4px; z-index: 9999;
+    }
+    .lang-switcher-float button {
+        background: #f8f9fa; border: 1px solid #ddd;
+        color: #333; padding: 4px 10px; border-radius: 4px;
+        cursor: pointer; font-size: 11px; font-weight: 600;
+    }
+    .lang-switcher-float button.active { background: #667eea; color: white; border-color: #667eea; }
 </style>
 </head>
 <body>
+    <form class="lang-switcher-float" action="/i18n/setlang/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="en" {% if current_lang == 'en' %}class="active"{% endif %}>EN</button>
+        <button type="submit" name="language" value="ru" {% if current_lang == 'ru' %}class="active"{% endif %}>RU</button>
+    </form>
     <div class="container">
         <!-- Заголовок -->
         <div class="header">
-            <h1>📊 История матчей</h1>
-            <p>Все игры пользователя {{ username }}</p>
+            <h1>📊 {% trans "Match History" %}</h1>
+            <p>{% blocktrans with username=username %}All games of {{ username }}{% endblocktrans %}</p>
         </div>
-        
+
         <!-- Навигация -->
         <div class="nav">
-            <a href="http://hub.codebattle.local:8003/profile/">👤 Мой профиль</a>
-            <a href="http://hub.codebattle.local:8003/profile/rating/">🏆 Рейтинг</a>
-            <a href="/match/history/" style="background: #f0f0f0;">📊 История</a>
-            <a href="http://match.codebattle.local:8001/match/hub/">🎮 Найти игру</a>
+            <a href="http://hub.codebattle.local:8003/profile/">👤 {% trans "My Profile" %}</a>
+            <a href="http://hub.codebattle.local:8003/profile/rating/">🏆 {% trans "Rating" %}</a>
+            <a href="/match/history/" style="background: #f0f0f0;">📊 {% trans "History" %}</a>
+            <a href="http://match.codebattle.local:8001/match/hub/">🎮 {% trans "Find Game" %}</a>
         </div>
         
         <!-- Статистика -->
@@ -376,32 +394,34 @@
             <div class="stat-card total">
                 <div class="stat-icon">🎮</div>
                 <div class="stat-value">{{ total_matches }}</div>
-                <div class="stat-label">Всего игр</div>
+                <div class="stat-label">{% trans "Total Games" %}</div>
             </div>
-            
+
             <div class="stat-card wins">
                 <div class="stat-icon">✅</div>
                 <div class="stat-value">{{ total_wins }}</div>
-                <div class="stat-label">Побед</div>
+                <div class="stat-label">{% trans "Wins" %}</div>
             </div>
-            
+
             <div class="stat-card losses">
                 <div class="stat-icon">❌</div>
                 <div class="stat-value">{{ total_losses }}</div>
-                <div class="stat-label">Поражений</div>
+                <div class="stat-label">{% trans "Losses" %}</div>
             </div>
-            
+
             <div class="stat-card winrate">
                 <div class="stat-icon">📈</div>
                 <div class="stat-value">{{ win_rate }}%</div>
-                <div class="stat-label">Винрейт</div>
+                <div class="stat-label">{% trans "Win Rate" %}</div>
             </div>
         </div>
         
         <!-- История матчей -->
         <div class="history-panel">
-            <h2 class="history-title">🕐 История игр ({{ match_history|length }})</h2>
-            
+            {% with count=match_history|length %}
+            <h2 class="history-title">🕐 {% blocktrans %}Game History ({{ count }}){% endblocktrans %}</h2>
+            {% endwith %}
+
             {% if match_history %}
                 <div class="match-list">
                     {% for match in match_history %}
@@ -409,11 +429,11 @@
                         <!-- Результат -->
                         <div class="result-badge">
                             {% if match.result == 'win' %}
-                                <span class="badge win">✅ Победа</span>
+                                <span class="badge win">✅ {% trans "Win" %}</span>
                             {% elif match.result == 'loss' %}
-                                <span class="badge loss">❌ Поражение</span>
+                                <span class="badge loss">❌ {% trans "Loss" %}</span>
                             {% else %}
-                                <span class="badge unfinished">⏸️ Не завершено</span>
+                                <span class="badge unfinished">⏸️ {% trans "Unfinished" %}</span>
                             {% endif %}
                         </div>
                         
@@ -436,7 +456,7 @@
                             {% if match.created_at %}
                                 <div>📅 {{ match.created_at|date:"d.m.Y H:i" }}</div>
                             {% else %}
-                                <div>Матч #{{ forloop.counter }}</div>
+                                <div>{% blocktrans with num=forloop.counter %}Match #{{ num }}{% endblocktrans %}</div>
                             {% endif %}
                         </div>
                         
@@ -450,11 +470,11 @@
             {% else %}
                 <div class="empty-history">
                     <div class="empty-icon">🎮</div>
-                    <p><strong>История пуста</strong></p>
-                    <p style="font-size: 14px; margin-top: 10px;">Сыграйте первый матч!</p>
+                    <p><strong>{% trans "History is empty" %}</strong></p>
+                    <p style="font-size: 14px; margin-top: 10px;">{% trans "Play your first match!" %}</p>
                     <br>
                     <a href="http://match.codebattle.local:8001/match/hub/" class="button" style="background: #667eea; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block;">
-                        🎮 Начать игру
+                        🎮 {% trans "Start Game" %}
                     </a>
                 </div>
             {% endif %}

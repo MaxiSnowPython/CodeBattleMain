@@ -1,0 +1,132 @@
+# Russian translations for game_service
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+
+msgid "Coding Battle - Game Room"
+msgstr "Coding Battle - Игровая комната"
+
+msgid "Waiting..."
+msgstr "Ожидание..."
+
+msgid "That's you!"
+msgstr "Это вы!"
+
+msgid "Congratulations! You won!"
+msgstr "Поздравляем! Вы выиграли!"
+
+msgid "You solved the task first!"
+msgstr "Вы решили задачу первым!"
+
+msgid "New Match"
+msgstr "Новый матч"
+
+msgid "Game over. Winner:"
+msgstr "Игра окончена. Победил:"
+
+msgid "Better luck next time!"
+msgstr "В следующий раз повезёт больше!"
+
+msgid "Examples:"
+msgstr "Примеры:"
+
+msgid "Input:"
+msgstr "Вход:"
+
+msgid "Expected result:"
+msgstr "Ожидаемый результат:"
+
+msgid "Your Solution"
+msgstr "Ваше решение"
+
+msgid "Game finished. Code is locked."
+msgstr "Игра завершена. Код заблокирован."
+
+msgid "Submit Solution"
+msgstr "Отправить решение"
+
+msgid "Leave Room"
+msgstr "Покинуть комнату"
+
+msgid "Error:"
+msgstr "Ошибка:"
+
+msgid "Test Results:"
+msgstr "Результаты тестов:"
+
+msgid "Test passed"
+msgstr "Тест пройден"
+
+msgid "Test failed"
+msgstr "Тест провален"
+
+msgid "Your output:"
+msgstr "Ваш результат:"
+
+msgid "Expected:"
+msgstr "Ожидалось:"
+
+msgid "Match History - %(username)s"
+msgstr "История матчей - %(username)s"
+
+msgid "Match History"
+msgstr "История матчей"
+
+msgid "All games of %(username)s"
+msgstr "Все игры пользователя %(username)s"
+
+msgid "My Profile"
+msgstr "Мой профиль"
+
+msgid "Rating"
+msgstr "Рейтинг"
+
+msgid "History"
+msgstr "История"
+
+msgid "Find Game"
+msgstr "Найти игру"
+
+msgid "Total Games"
+msgstr "Всего игр"
+
+msgid "Wins"
+msgstr "Побед"
+
+msgid "Losses"
+msgstr "Поражений"
+
+msgid "Win Rate"
+msgstr "Винрейт"
+
+msgid "Game History (%(count)s)"
+msgstr "История игр (%(count)s)"
+
+msgid "Win"
+msgstr "Победа"
+
+msgid "Loss"
+msgstr "Поражение"
+
+msgid "Unfinished"
+msgstr "Не завершено"
+
+msgid "Match #%(num)s"
+msgstr "Матч #%(num)s"
+
+msgid "History is empty"
+msgstr "История пуста"
+
+msgid "Play your first match!"
+msgstr "Сыграйте первый матч!"
+
+msgid "Start Game"
+msgstr "Начать игру"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Russian"
+msgstr "Русский"

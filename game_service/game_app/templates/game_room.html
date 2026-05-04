@@ -1,8 +1,10 @@
+{% load i18n %}
+{% get_current_language as current_lang %}
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>Coding Battle - Игровая комната</title>
+    <title>{% trans "Coding Battle - Game Room" %}</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -276,27 +278,44 @@
             flex-direction: column;
         }
     }
+    .lang-switcher-float {
+        position: fixed; top: 12px; right: 16px;
+        display: flex; gap: 4px; z-index: 9999;
+    }
+    .lang-switcher-float button {
+        background: rgba(0,0,0,0.6); border: 1px solid #444;
+        color: #ccc; padding: 4px 10px; border-radius: 4px;
+        cursor: pointer; font-size: 11px; font-weight: 600;
+    }
+    .lang-switcher-float button.active { background: #5865f2; color: white; border-color: #5865f2; }
 </style>
 </head>
 <body>
+    <form class="lang-switcher-float" action="/i18n/setlang/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button type="submit" name="language" value="en" {% if current_lang == 'en' %}class="active"{% endif %}>EN</button>
+        <button type="submit" name="language" value="ru" {% if current_lang == 'ru' %}class="active"{% endif %}>RU</button>
+    </form>
     <div class="container">
         <div class="header">
             <h1>🚀 Coding Battle — Комната #{{ room.id }}</h1>
 
             <div class="players">
                 <div class="player {% if user.id == room.player1.id %}current-user{% endif %}">
-                    👤 {{ room.player1.username|default:"Ожидание..." }}
+                    {% trans "Waiting..." as waiting_text %}
+                    👤 {{ room.player1.username|default:waiting_text }}
                     {% if user.id == room.player1.id %}
-                        <br><small>👑 Это вы!</small>
+                        <br><small>👑 {% trans "That's you!" %}</small>
                     {% endif %}
                 </div>
 
                 <div style="font-size: 24px; color: #333;">⚔️ VS ⚔️</div>
 
                 <div class="player {% if user.id == room.player2.id %}current-user{% endif %}">
-                    👤 {{ room.player2.username|default:"Ожидание..." }}
+                    👤 {{ room.player2.username|default:waiting_text }}
                     {% if user.id == room.player2.id %}
-                        <br><small>👑 Это вы!</small>
+                        <br><small>👑 {% trans "That's you!" %}</small>
                     {% endif %}
                 </div>
             </div>
@@ -305,20 +324,20 @@
         {% if room.is_finished %}
             {% if room.winner_name == user.username %}
                 <div class="game-finished winner">
-                    🎉 Поздравляем! Вы выиграли!
-                    <br><small>Вы решили задачу первым!</small>
+                    🎉 {% trans "Congratulations! You won!" %}
+                    <br><small>{% trans "You solved the task first!" %}</small>
                     <br><br>
                     <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
-                        🎮 Новый матч
+                        🎮 {% trans "New Match" %}
                     </a>
                 </div>
             {% else %}
                 <div class="game-finished loser">
-                    😔 Игра окончена. Победил: {{ room.winner_name }}
-                    <br><small>В следующий раз повезёт больше!</small>
+                    😔 {% trans "Game over. Winner:" %} {{ room.winner_name }}
+                    <br><small>{% trans "Better luck next time!" %}</small>
                     <br><br>
                     <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
-                        🎮 Новый матч
+                        🎮 {% trans "New Match" %}
                     </a>
                 </div>
             {% endif %}
@@ -329,23 +348,23 @@
                 <h2>📝 {{ room.task.title }}</h2>
                 <p>{{ room.task.description|linebreaks }}</p>
                 <hr>
-                <h4>Примеры:</h4>
+                <h4>{% trans "Examples:" %}</h4>
                 {% if room.task.tests %}
                     {% for test in room.task.tests %}
                         <div style="background: #111213; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                            <strong>Вход:</strong> <code>{{ test.variables }}</code><br>
-                            <strong>Ожидаемый результат:</strong> <code>{{ test.expected }}</code>
+                            <strong>{% trans "Input:" %}</strong> <code>{{ test.variables }}</code><br>
+                            <strong>{% trans "Expected result:" %}</strong> <code>{{ test.expected }}</code>
                         </div>
                     {% endfor %}
                 {% endif %}
             </div>
 
             <div class="panel">
-                <h3>💻 Ваше решение</h3>
+                <h3>💻 {% trans "Your Solution" %}</h3>
 
                 {% if room.is_finished %}
                     <p style="color: #6c757d; background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                        ⚠️ Игра завершена. Код заблокирован.
+                        ⚠️ {% trans "Game finished. Code is locked." %}
                     </p>
                     
                     <textarea disabled rows="12" cols="70">{{ room.task.initial_code }}</textarea>
@@ -359,11 +378,11 @@
                         <br><br>
 
                         <button type="submit" name="submit_solution" class="button">
-                            🚀 Отправить решение
+                            🚀 {% trans "Submit Solution" %}
                         </button>
 
                         <button type="submit" name="leave" class="button leave-btn">
-                            🚪 Покинуть комнату
+                            🚪 {% trans "Leave Room" %}
                         </button>
                     </form>
                 {% endif %}
@@ -372,24 +391,24 @@
                     <div class="result-panel">
                         {% if result.error %}
                             <div style="color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 5px;">
-                                <strong>❌ Ошибка:</strong>
+                                <strong>❌ {% trans "Error:" %}</strong>
                                 <pre style="margin: 10px 0 0 0; white-space: pre-wrap;">{{ result.error }}</pre>
                             </div>
                         {% else %}
-                            <h4>Результаты тестов:</h4>
+                            <h4>{% trans "Test Results:" %}</h4>
 
                             {% for r in result.results %}
                                 <div class="test-result {% if r.passed %}test-passed{% else %}test-failed{% endif %}">
                                     {% if r.passed %}
-                                        ✅ <strong>Тест пройден</strong>
+                                        ✅ <strong>{% trans "Test passed" %}</strong>
                                     {% else %}
-                                        ❌ <strong>Тест провален</strong>
+                                        ❌ <strong>{% trans "Test failed" %}</strong>
                                     {% endif %}
                                     <br>
                                     <small>
-                                        Вход: <code>{{ r.input }}</code> |
-                                        Ваш результат: <code>{{ r.output }}</code> |
-                                        Ожидалось: <code>{{ r.expected }}</code>
+                                        {% trans "Input:" %} <code>{{ r.input }}</code> |
+                                        {% trans "Your output:" %} <code>{{ r.output }}</code> |
+                                        {% trans "Expected:" %} <code>{{ r.expected }}</code>
                                     </small>
                                 </div>
                             {% endfor %}

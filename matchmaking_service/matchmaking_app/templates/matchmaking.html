@@ -1,9 +1,10 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html>
+{% get_current_language as current_lang %}
+<html lang="{{ current_lang }}">
 <head>
     <meta charset="UTF-8">
-    <title>CodeBattle - Поиск игры</title>
+    <title>{% trans "CodeBattle - Find Game" %}</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -441,7 +442,7 @@
             <p>Protocol // Arena 2026</p>
         </div>
         <div class="lang-section">
-    <div class="lang-label">Select Language</div>
+    <div class="lang-label">{% trans "Select Language" %}</div>
     <div class="lang-grid">
         <div class="lang-wrapper">
             <a href="#" class="lang-item active-lang">
@@ -472,21 +473,21 @@
         <div class="welcome-text">
             <h2>System Online</h2>
             <div class="greeting">
-                Приветствую, <strong id="player-nick">{{username}}</strong>
+                {% trans "Welcome," %} <strong id="player-nick">{{username}}</strong>
             </div>
         </div>
-        
+
         <div id="search-block">
-            <button id="find-btn" onclick="startSearch()">Начать поиск</button>
+            <button id="find-btn" onclick="startSearch()">{% trans "Find Match" %}</button>
         </div>
 
         <div id="status-block" class="hidden">
-            <p id="status">Поиск противника...</p>
+            <p id="status">{% trans "Searching for opponent..." %}</p>
             <div class="loader"></div>
         </div>
     </div>
 
-<div class="toast" id="wip-toast">⚙ В разработке</div>
+<div class="toast" id="wip-toast">⚙ {% trans "In Development" %}</div>
 
 <script>
 let wipTimer = null;
@@ -533,28 +534,34 @@ function startSearch() {
         </div>
         <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item active">
             <span class="icon">&#9670;</span>
-            <span>Арена</span>
+            <span>{% trans "Arena" %}</span>
         </a>
         <a href="http://hub.codebattle.local:8003/profile/" class="nav-item">
             <span class="icon">&#9675;</span>
-            <span>Профиль</span>
+            <span>{% trans "Profile" %}</span>
         </a>
         <a href="http://hub.codebattle.local:8003/profile/rating" class="nav-item">
             <span class="icon">&#9651;</span>
-            <span>Рейтинг</span>
+            <span>{% trans "Rating" %}</span>
         </a>
         <a href="http://game.codebattle.local:8002/game/history" class="nav-item">
             <span class="icon">&#9707;</span>
-            <span>История</span>
+            <span>{% trans "History" %}</span>
         </a>
         <a href="/tasks" class="nav-item">
             <span class="icon">&#9656;</span>
-            <span>Задания</span>
+            <span>{% trans "Tasks" %}</span>
         </a>
         <div class="sidebar-footer">
+            <form action="/i18n/setlang/" method="post" style="padding: 8px 16px; display: flex; gap: 6px;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" name="language" value="en" style="flex:1; background:{% if current_lang == 'en' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">EN</button>
+                <button type="submit" name="language" value="ru" style="flex:1; background:{% if current_lang == 'ru' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">RU</button>
+            </form>
             <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item">
                 <span class="icon">&#9109;</span>
-                <span>Выйти</span>
+                <span>{% trans "Sign Out" %}</span>
             </a>
         </div>
     </nav>

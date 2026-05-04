@@ -1,0 +1,27 @@
+# Russian translations for auth_service
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+
+msgid "Login"
+msgstr "Войти"
+
+msgid "Sign In"
+msgstr "Войти"
+
+msgid "Register"
+msgstr "Зарегистрироваться"
+
+msgid "Don't have an account?"
+msgstr "Нет аккаунта?"
+
+msgid "Already have an account?"
+msgstr "Уже есть аккаунт?"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Russian"
+msgstr "Русский"
