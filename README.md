@@ -1,93 +1,88 @@
 # CodeBattle
 
-Платформа для соревновательного программирования в реальном времени. Два игрока решают одну и ту же задачу, код выполняется в изолированном sandbox, победитель определяется по результатам тестов.
+A real-time competitive programming platform. Two players solve the same problem simultaneously — code runs inside an isolated sandbox, winner is determined by test results.
 
-## Что умеет
+## Features
 
-- Регистрация и вход с JWT авторизацией через httponly cookies
-- Автоматический поиск соперника через очередь (matchmaking)
-- Редирект обоих игроков в одну игровую комнату при нахождении матча
-- Выполнение кода пользователя в изолированном Docker контейнере с лимитами памяти и CPU
-- Профиль с историей матчей, статистикой побед и системой друзей
-- Чат между друзьями в реальном времени
-- Таблица рейтинга
+- Registration and login with JWT auth via httponly cookies
+- Automatic opponent search via matchmaking queue
+- Both players get redirected to the same game room once a match is found
+- User code runs inside an isolated Docker container with memory and CPU limits
+- Profile with match history, win stats, and a friends system
+- Real-time chat between friends
+- Global leaderboard
 
-## Стек
+## Stack
 
-| Технология | Для чего |
+| Technology | Purpose |
 |---|---|
-| Django | HTTP сервисы |
-| Django Channels + Daphne | WebSocket (matchmaking, чат) |
-| Redis | Очередь matchmaking, channel layer |
-| Kafka | Обновление статистики после матча |
-| Docker | Sandbox для выполнения кода |
-| JWT (SimpleJWT) | Авторизация через cookies |
-| Prometheus | Метрики каждого сервиса |
+| Django | HTTP services |
+| Django Channels + Daphne | WebSocket (matchmaking, chat) |
+| Redis | Matchmaking queue, channel layer |
+| Kafka | Stats update after match ends |
+| Docker | Sandbox for code execution |
+| JWT (SimpleJWT) | Cookie-based auth |
+| Prometheus | Per-service metrics |
 
-## Архитектура
+## Architecture
 
-Проект разбит на 4 независимых сервиса:
+The project is split into 4 independent services:
 
 ```
-auth_service      :8000  — регистрация, вход
-matchmaking_service :8001  — поиск матча (WebSocket)
-game_service      :8002  — игровая комната, sandbox, история
-hub_service       :8003  — профиль, друзья, чат, рейтинг
+auth_service        :8000  — registration, login
+matchmaking_service :8001  — matchmaking (WebSocket)
+game_service        :8002  — game room, sandbox, history
+hub_service         :8003  — profile, friends, chat, leaderboard
 ```
 
-Общая JWT авторизация вынесена в `shared/auth/` и подключена во все сервисы как middleware.
+Shared JWT auth lives in `shared/auth/` and is plugged into every service as middleware.
 
-## Запуск локально
+## Running locally
 
-**Требования:** Python 3.11+, Docker, tmux
+**Requirements:** Python 3.11+, Docker, tmux
 
 ```bash
 git clone https://github.com/MaxiSnowPython/CodeBattleMain.git
 cd CodeBattleMain
 
-# Создать виртуальное окружение
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt  # или установить зависимости вручную
+pip install -r requirements.txt
 
-# Создать .env файл (скопировать из примера и заполнить)
 cp .env.example .env
 
-# Добавить домены в /etc/hosts
 echo "127.0.0.1 auth.codebattle.local" | sudo tee -a /etc/hosts
 echo "127.0.0.1 match.codebattle.local" | sudo tee -a /etc/hosts
 echo "127.0.0.1 game.codebattle.local" | sudo tee -a /etc/hosts
 echo "127.0.0.1 hub.codebattle.local" | sudo tee -a /etc/hosts
 
-# Собрать Docker образ для sandbox
 docker build -t game-service-image ./game_service/game_app/sandbox/
 
-# Запустить всё одной командой
 ./start.sh
 ```
 
-После запуска открыть: http://auth.codebattle.local:8000/auth/register/
+Open in browser: http://auth.codebattle.local:8000/auth/register/
 
-Остановить: `./stop.sh`
+Stop: `./stop.sh`
 
-## Переменные окружения
+## Environment variables
 
-Все настройки хранятся в `.env` файле. Пример в `.env.example`.
+All settings are stored in the `.env` file. See `.env.example` for reference.
 
-| Переменная | Описание |
+| Variable | Description |
 |---|---|
-| `DJANGO_SECRET_KEY` | Секретный ключ Django |
+| `DJANGO_SECRET_KEY` | Django secret key |
 | `DEBUG` | True/False |
-| `SECURE_COOKIES` | True на проде (HTTPS), False локально |
-| `COOKIE_DOMAIN` | Домен для куков (.codebattle.local) |
-| `AUTH_URL` / `MATCH_URL` / `GAME_URL` / `HUB_URL` | URL каждого сервиса |
-| `REDIS_HOST` / `REDIS_PORT` | Подключение к Redis |
-| `KAFKA_BOOTSTRAP_SERVERS` | Подключение к Kafka |
+| `SECURE_COOKIES` | True in production (HTTPS), False locally |
+| `COOKIE_DOMAIN` | Cookie domain (.codebattle.local) |
+| `AUTH_URL` / `MATCH_URL` / `GAME_URL` / `HUB_URL` | URL of each service |
+| `REDIS_HOST` / `REDIS_PORT` | Redis connection |
+| `KAFKA_BOOTSTRAP_SERVERS` | Kafka connection |
 
-## Безопасность
+## Security
 
-- JWT токены в httponly cookies — недоступны через JS
-- Access token живёт 15 минут, refresh token 7 дней
-- Middleware автоматически обновляет access token через refresh без участия клиента
-- Sandbox: лимит памяти 128MB, CPU 0.5 ядра, нет сети, лимит процессов 64
-- Таймаут выполнения кода: 3 сек на весь файл, 2 сек на один тест
+- JWT tokens in httponly cookies — not accessible via JS
+- Access token lifetime: 15 minutes, refresh token: 7 days
+- Middleware silently refreshes the access token using the refresh token
+- Sandbox: 128MB memory limit, 0.5 CPU, no network, 64 process limit
+- Code execution timeout: 3s total, 2s per test
