@@ -1,512 +1,233 @@
-{% load i18n %}
+{% load static i18n %}
 {% get_current_language as current_lang %}
 <!DOCTYPE html>
 <html lang="{{ current_lang }}">
 <head>
-    <meta charset="UTF-8">
-    <title>{% trans "Player Rating - CodeBattle" %}</title>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-        --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --bg-card: #101010;
-        --bg-card-hover: #1a1a1a;
-        --bg-row: #0d0d0d;
-        --bg-row-hover: #151515;
-        --border-color: #1c1c1c;
-        --border-hover: #2a2a2a;
-        --text-primary: #e7e9ea;
-        --text-secondary: #71767b;
-        --text-muted: #3b3b3b;
-        --accent: #a970ff;
-        --accent-dim: rgba(169, 112, 255, 0.08);
-        --accent-glow: rgba(169, 112, 255, 0.2);
-        --success: #00ba7c;
-        --success-dim: rgba(0, 186, 124, 0.12);
-        --danger: #f4212e;
-        --gold: #f5c518;
-        --gold-dim: rgba(245, 197, 24, 0.1);
-        --silver: #71767b;
-        --silver-dim: rgba(113, 118, 123, 0.1);
-        --bronze: #cd7f32;
-        --bronze-dim: rgba(205, 127, 50, 0.1);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100vh;
-        margin: 0;
-        padding: 40px 20px;
-    }
-
-    .container {
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-        background: var(--bg-card);
-        padding: 36px 28px 32px;
-        border-radius: 16px;
-        text-align: center;
-        margin-bottom: 16px;
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        opacity: 0.6;
-    }
-
-    .header h1 {
-        font-family: 'Inter', sans-serif;
-        font-size: 24px;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-        color: var(--text-primary);
-        margin-bottom: 6px;
-    }
-
-    .header p {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        color: var(--text-secondary);
-    }
-
-    /* ===== NAV ===== */
-    .nav {
-        background: var(--bg-card);
-        padding: 6px;
-        border-radius: 12px;
-        margin-bottom: 16px;
-        border: 1px solid var(--border-color);
-        display: flex;
-        gap: 4px;
-    }
-
-    .nav a {
-        color: var(--text-secondary);
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 10px 18px;
-        border-radius: 8px;
-        transition: all 0.15s ease;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .nav a:hover {
-        background: var(--bg-card-hover);
-        color: var(--text-primary);
-    }
-
-    .nav a.active {
-        background: var(--accent-dim);
-        color: var(--accent);
-    }
-
-    /* ===== CURRENT USER CARD ===== */
-    .current-user-card {
-        background: var(--bg-card);
-        border: 1px solid var(--accent);
-        padding: 24px;
-        border-radius: 16px;
-        margin-bottom: 16px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .current-user-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: var(--accent);
-        opacity: 0.03;
-    }
-
-    .current-user-card h3 {
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--text-primary);
-        position: relative;
-    }
-
-    .current-user-stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
-        text-align: center;
-        position: relative;
-    }
-
-    .stat-box {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        padding: 16px 12px;
-        border-radius: 12px;
-        transition: border-color 0.15s;
-    }
-
-    .stat-box:hover {
-        border-color: var(--border-hover);
-    }
-
-    .stat-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 4px;
-    }
-
-    .stat-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 10px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: var(--text-muted);
-    }
-
-    /* ===== RATING PANEL ===== */
-    .rating-panel {
-        background: var(--bg-card);
-        border-radius: 16px;
-        padding: 0;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-    }
-
-    .rating-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--text-primary);
-        padding: 20px 24px;
-        border-bottom: 1px solid var(--border-color);
-        margin: 0;
-    }
-
-    .rating-list {
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* ===== PLAYER ROW ===== */
-    .player-row {
-        display: grid;
-        grid-template-columns: 56px 48px 1fr 100px 100px 100px 80px;
-        align-items: center;
-        padding: 14px 24px;
-        background: transparent;
-        border-bottom: 1px solid var(--border-color);
-        transition: background 0.15s;
-    }
-
-    .player-row:last-child { border-bottom: none; }
-
-    .player-row:hover {
-        background: var(--bg-card-hover);
-    }
-
-    /* Current user highlight */
-    .player-row.current-user {
-        background: var(--accent-dim);
-        border-left: 2px solid var(--accent);
-    }
-
-    .player-row.current-user:hover {
-        background: rgba(169, 112, 255, 0.12);
-    }
-
-    /* Top 3 */
-    .player-row.rank-1 {
-        background: var(--gold-dim);
-        border-left: 2px solid var(--gold);
-    }
-
-    .player-row.rank-2 {
-        background: var(--silver-dim);
-        border-left: 2px solid var(--silver);
-    }
-
-    .player-row.rank-3 {
-        background: var(--bronze-dim);
-        border-left: 2px solid var(--bronze);
-    }
-
-    .rank {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 18px;
-        font-weight: 700;
-        text-align: center;
-        color: var(--text-secondary);
-    }
-
-    .rank-1 .rank { color: var(--gold); }
-    .rank-2 .rank { color: var(--silver); }
-    .rank-3 .rank { color: var(--bronze); }
-
-    .medal {
-        font-size: 24px;
-        text-align: center;
-    }
-
-    .player-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid var(--border-color);
-        transition: border-color 0.15s;
-    }
-
-    .player-row:hover .player-avatar {
-        border-color: var(--accent);
-    }
-
-    .player-info {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-    }
-
-    .player-name {
-        font-family: 'Inter', sans-serif;
-        font-weight: 700;
-        font-size: 15px;
-        color: var(--text-primary);
-    }
-
-    .online-indicator {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-left: 8px;
-    }
-
-    .online-indicator.online {
-        background: var(--success);
-        box-shadow: 0 0 6px var(--success);
-    }
-
-    .online-indicator.offline {
-        background: var(--text-muted);
-    }
-
-    .stat-cell {
-        text-align: center;
-        font-size: 14px;
-        color: var(--text-secondary);
-        font-family: 'Inter', sans-serif;
-    }
-
-    .stat-cell strong {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 15px;
-        color: var(--text-primary);
-        font-weight: 600;
-    }
-
-    .win-rate { text-align: center; }
-
-    .win-rate-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--accent);
-    }
-
-    .win-rate-bar {
-        width: 56px;
-        height: 4px;
-        background: var(--border-color);
-        border-radius: 2px;
-        overflow: hidden;
-        margin: 6px auto 0;
-    }
-
-    .win-rate-fill {
-        height: 100%;
-        background: var(--accent);
-        border-radius: 2px;
-        transition: width 0.3s ease;
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-rating {
-        text-align: center;
-        padding: 64px 24px;
-        color: var(--text-muted);
-    }
-
-    .empty-rating-icon {
-        font-size: 48px;
-        margin-bottom: 16px;
-        opacity: 0.4;
-    }
-
-    .empty-rating p {
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        color: var(--text-muted);
-    }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 900px) {
-        .player-row {
-            grid-template-columns: 48px 40px 1fr 72px;
-        }
-
-        .stat-cell { display: none; }
-
-        .current-user-stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-</style>
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% trans "Rating" %} — CodeBattle</title>
+  <link rel="stylesheet" href="{% static 'css/cb.css' %}">
 </head>
 <body>
-    <div class="container">
-        <!-- Заголовок -->
-        <div class="header">
-            <h1>🏆 {% trans "Player Rating" %}</h1>
-            <p>{% trans "Top CodeBattle Programmers" %}</p>
-        </div>
+<div class="app">
 
-        <!-- Навигация -->
-        <div class="nav">
-            <a href="/profile/">👤 {% trans "My Profile" %}</a>
-            <a href="/rating/" style="background: #f0f0f0;">🏆 {% trans "Rating" %}</a>
-            <a href="http://game.codebattle.local:8002/game/history/">📊 {% trans "History" %}</a>
-            <a href="http://match.codebattle.local:8001/match/hub/">🎮 {% trans "Find Game" %}</a>
-            <form action="/i18n/setlang/" method="post" style="display:inline; margin-left:auto;">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" name="language" value="en" style="background:{% if current_lang == 'en' %}#667eea{% else %}#f8f9fa{% endif %}; border:1px solid #ddd; color:{% if current_lang == 'en' %}white{% else %}#333{% endif %}; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:600;">EN</button>
-                <button type="submit" name="language" value="ru" style="background:{% if current_lang == 'ru' %}#667eea{% else %}#f8f9fa{% endif %}; border:1px solid #ddd; color:{% if current_lang == 'ru' %}white{% else %}#333{% endif %}; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:13px; font-weight:600;">RU</button>
-            </form>
-        </div>
-        
-        <!-- Карточка текущего пользователя -->
-        <div class="current-user-card">
-            <h3>👑 {% trans "Your Position" %}</h3>
-            <div class="current-user-stats">
-                <div class="stat-box">
-                    <div class="stat-value">#{{ current_user_rank|default:"—" }}</div>
-                    <div class="stat-label">{% trans "Place" %}</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">{{ current_profile.games_played }}</div>
-                    <div class="stat-label">{% trans "games" %}</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">{{ current_profile.games_won }}</div>
-                    <div class="stat-label">{% trans "wins" %}</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value">{{ current_profile.win_rate }}%</div>
-                    <div class="stat-label">{% trans "Win Rate" %}</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Рейтинг таблица -->
-        <div class="rating-panel">
-            <h2 class="rating-title">📊 Топ игроков ({{ total_players }})</h2>
-            
-            {% if rating_data %}
-                <div class="rating-list">
-                    {% for player in rating_data %}
-                    <div class="player-row 
-                                {% if player.is_current_user %}current-user{% endif %}
-                                {% if player.rank == 1 %}rank-1{% endif %}
-                                {% if player.rank == 2 %}rank-2{% endif %}
-                                {% if player.rank == 3 %}rank-3{% endif %}">
-                        
-                        <!-- Позиция -->
-                        <div class="rank">{{ player.rank }}</div>
-                        
-                        <!-- Медаль для топ-3 -->
-                        <div class="medal">
-                            {% if player.rank == 1 %}🥇
-                            {% elif player.rank == 2 %}🥈
-                            {% elif player.rank == 3 %}🥉
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Игрок -->
-                        <div class="player-info">
-                            <img src="{{ player.avatar|default:'https://via.placeholder.com/50' }}" 
-                                 alt="{{ player.user.username }}" 
-                                 class="player-avatar">
-                            <div>
-                                <div class="player-name">
-                                    {{ player.user.username }}
-                                    {% if player.is_current_user %}({% trans "You" %}){% endif %}
-                                    <span class="online-indicator {% if player.is_online %}online{% else %}offline{% endif %}"></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Статистика -->
-                        <div class="stat-cell">
-                            <strong>{{ player.games_played }}</strong><br>
-                            <small>{% trans "games" %}</small>
-                        </div>
-
-                        <div class="stat-cell">
-                            <strong>{{ player.games_won }}</strong><br>
-                            <small>{% trans "wins" %}</small>
-                        </div>
-
-                        <div class="stat-cell">
-                            <strong>{{ player.games_played|add:"-"|add:player.games_won }}</strong><br>
-                            <small>{% trans "losses" %}</small>
-                        </div>
-                        
-                        <!-- Винрейт -->
-                        <div class="win-rate">
-                            <div class="win-rate-value">{{ player.win_rate }}%</div>
-                            <div class="win-rate-bar">
-                                <div class="win-rate-fill" style="width: {{ player.win_rate }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-rating">
-                    <div class="empty-rating-icon">🎮</div>
-                    <p>{% trans "Rating is empty" %}</p>
-                    <p style="font-size: 14px; margin-top: 10px;">{% trans "Play your first match!" %}</p>
-                </div>
-            {% endif %}
-        </div>
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span class="bolt">⚡</span>
+      <span>CodeBattle</span>
     </div>
+    <div class="sidebar-nav">
+      <span class="sidebar-section-label">{% trans "Play" %}</span>
+      <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 2-2"/><path d="m17 13 2-2"/><path d="m3 21 4-4"/><path d="m21 3-5.5 5.5"/></svg>
+        </span>
+        <span>{% trans "Arena" %}</span>
+      </a>
+      <span class="sidebar-section-label">{% trans "Stats" %}</span>
+      <a href="/profile/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </span>
+        <span>{% trans "Profile" %}</span>
+      </a>
+      <a href="/profile/rating/" class="nav-item active">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </span>
+        <span>{% trans "Rating" %}</span>
+      </a>
+      <a href="http://game.codebattle.local:8002/game/history/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span>{% trans "History" %}</span>
+      </a>
+    </div>
+    <div class="sidebar-foot">
+      <form action="/i18n/setlang/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <div class="lang-toggle">
+          <button type="submit" name="language" value="en" {% if current_lang == 'en' %}class="active"{% endif %}>EN</button>
+          <button type="submit" name="language" value="ru" {% if current_lang == 'ru' %}class="active"{% endif %}>RU</button>
+        </div>
+      </form>
+      <a href="/profile/logout/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </span>
+        <span>{% trans "Sign Out" %}</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="app-content">
+    <div class="page slide-up" style="max-width:1100px;">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">{% trans "Rating" %}</h1>
+          <div class="page-subtitle">hub · 8003 · /profile/rating</div>
+        </div>
+        <!-- Scope switcher (visual) -->
+        <div style="display:flex;align-items:center;gap:4px;padding:4px;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-md);">
+          <span style="padding:6px 12px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;border-radius:var(--r-sm);background:var(--surface-3);color:var(--text);">{% trans "Global" %}</span>
+          <span style="padding:6px 12px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;border-radius:var(--r-sm);color:var(--text-muted);">{% trans "Friends" %}</span>
+          <span style="padding:6px 12px;font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;text-transform:uppercase;border-radius:var(--r-sm);color:var(--text-muted);">{% trans "This week" %}</span>
+        </div>
+      </div>
+
+      <!-- Your position card -->
+      <div style="background:linear-gradient(135deg,oklch(0.22 0.06 290),oklch(0.14 0.04 280));border:1px solid oklch(0.4 0.12 290/0.4);border-radius:var(--r-xl);padding:20px 24px;margin-bottom:20px;display:grid;grid-template-columns:60px 1fr 130px 200px 140px;gap:20px;align-items:center;position:relative;overflow:hidden;">
+        <!-- background glow -->
+        <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,oklch(0.7 0.18 290/0.3),transparent 70%);pointer-events:none;"></div>
+
+        <!-- Rank -->
+        <div style="position:relative;">
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);display:block;letter-spacing:0.1em;">RANK</span>
+          <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent-text);letter-spacing:-0.02em;">#{{ current_user_rank|default:"—" }}</span>
+        </div>
+
+        <!-- User -->
+        <div style="display:flex;align-items:center;gap:14px;position:relative;">
+          <span class="avatar-initials online" style="width:46px;height:46px;font-size:17px;">{{ username|slice:":2"|upper }}</span>
+          <div>
+            <div style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:-0.01em;">
+              {{ username }} <span class="badge badge-accent" style="margin-left:6px;font-size:9px;">{% trans "you" %}</span>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px;">
+              {{ current_profile.games_won }} W / {{ current_profile.games_played|add:"-0" }} {% trans "played" %}
+            </div>
+          </div>
+        </div>
+
+        <!-- ELO -->
+        <div style="position:relative;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:0.08em;">ELO</div>
+          <div style="font-family:var(--font-mono);font-size:22px;font-weight:600;">{{ current_profile.rating|default:"—" }}</div>
+        </div>
+
+        <!-- Winrate bar -->
+        <div style="position:relative;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">
+            <span>WINRATE</span>
+            <span style="color:var(--text);font-weight:600;">{{ current_profile.win_rate }}%</span>
+          </div>
+          <div class="progress-track" style="height:6px;">
+            <div class="progress-fill" style="width:{{ current_profile.win_rate }}%;background:var(--accent);height:6px;"></div>
+          </div>
+        </div>
+
+        <!-- Next tier -->
+        <div style="text-align:right;position:relative;">
+          <div style="font-size:11px;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:0.08em;">{% trans "NEXT TIER" %}</div>
+          <div style="font-family:var(--font-mono);font-size:14px;font-weight:500;margin-top:2px;">
+            <span style="color:var(--accent-text);">Diamond</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="card-flat" style="overflow:hidden;">
+
+        <!-- Table header -->
+        <div style="display:grid;grid-template-columns:70px 1fr 110px 120px 200px 90px;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--surface-1);font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;">
+          <div>{% trans "Rank" %}</div>
+          <div>{% trans "Player" %}</div>
+          <div>ELO</div>
+          <div>W / L</div>
+          <div>{% trans "Winrate" %}</div>
+          <div style="text-align:right;">7d</div>
+        </div>
+
+        {% if rating_data %}
+          {% for player in rating_data %}
+          <div style="display:grid;grid-template-columns:70px 1fr 110px 120px 200px 90px;gap:12px;padding:14px 18px;border-bottom:{% if not forloop.last %}1px solid var(--border){% else %}none{% endif %};align-items:center;transition:background 0.12s;
+            {% if player.is_current_user %}background:oklch(0.7 0.18 290/0.06);{% elif player.rank <= 3 %}background:oklch(0.7 0.18 290/0.025);{% endif %}"
+               onmouseover="this.style.background='var(--surface-1)'"
+               onmouseout="this.style.background='{% if player.is_current_user %}oklch(0.7 0.18 290/0.06){% elif player.rank <= 3 %}oklch(0.7 0.18 290/0.025){% else %}transparent{% endif %}'">
+
+            <!-- Rank / Medal -->
+            <div>
+              {% if player.rank == 1 %}
+                <span style="width:26px;height:26px;border-radius:50%;background:oklch(0.78 0.15 85/0.18);color:oklch(0.85 0.16 85);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:700;border:1px solid oklch(0.85 0.16 85);">1</span>
+              {% elif player.rank == 2 %}
+                <span style="width:26px;height:26px;border-radius:50%;background:oklch(0.7 0.04 280/0.2);color:oklch(0.82 0.03 280);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:700;border:1px solid oklch(0.82 0.03 280);">2</span>
+              {% elif player.rank == 3 %}
+                <span style="width:26px;height:26px;border-radius:50%;background:oklch(0.55 0.13 50/0.18);color:oklch(0.72 0.13 50);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;font-weight:700;border:1px solid oklch(0.72 0.13 50);">3</span>
+              {% else %}
+                <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);padding-left:4px;">{{ player.rank }}</span>
+              {% endif %}
+            </div>
+
+            <!-- Player info -->
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="avatar-initials {% if player.is_online %}online{% endif %}" style="width:30px;height:30px;font-size:11px;">{{ player.user.username|slice:":2"|upper }}</span>
+              <div>
+                <div style="font-family:var(--font-mono);font-size:13px;font-weight:500;">
+                  {{ player.user.username }}
+                  {% if player.is_current_user %}<span class="badge badge-accent" style="margin-left:6px;font-size:9px;">{% trans "you" %}</span>{% endif %}
+                </div>
+                {% if player.rank <= 3 %}
+                <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;
+                  color:{% if player.rank == 1 %}oklch(0.85 0.16 85){% elif player.rank == 2 %}oklch(0.82 0.03 280){% else %}oklch(0.72 0.13 50){% endif %};">
+                  {% if player.rank == 1 %}champion{% elif player.rank == 2 %}silver{% else %}bronze{% endif %}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- ELO -->
+            <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;">
+              {{ player.rating|default:"—" }}
+            </div>
+
+            <!-- W / L -->
+            <div style="font-family:var(--font-mono);font-size:12px;">
+              <span style="color:var(--success);">{{ player.games_won }}</span>
+              <span style="color:var(--text-faint);"> / </span>
+              <span style="color:var(--danger);">{{ player.games_played|add:"-0" }}</span>
+            </div>
+
+            <!-- Winrate bar -->
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;font-family:var(--font-mono);font-size:11px;">
+                <span style="color:var(--text);">{{ player.win_rate }}%</span>
+              </div>
+              <div class="progress-track" style="height:4px;">
+                <div class="progress-fill" style="width:{{ player.win_rate }}%;height:4px;
+                  background:{% if player.rank == 1 %}oklch(0.85 0.16 85){% else %}var(--accent){% endif %};"></div>
+              </div>
+            </div>
+
+            <!-- 7d change -->
+            <div style="text-align:right;font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--text-muted);">—</div>
+
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="padding:64px 24px;text-align:center;color:var(--text-muted);">
+            <div style="font-size:32px;margin-bottom:12px;opacity:0.35;">🏆</div>
+            <div style="font-family:var(--font-mono);font-size:13px;margin-bottom:20px;">{% trans "No players yet" %}</div>
+            <a href="http://match.codebattle.local:8001/match/hub/" class="btn btn-primary">{% trans "Be the first" %}</a>
+          </div>
+        {% endif %}
+
+      </div>
+
+      {% if total_players %}
+      <div style="text-align:center;margin-top:20px;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);letter-spacing:0.05em;">
+        {% blocktrans with count=total_players %}showing top players of {{ count }} ranked{% endblocktrans %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>
 </body>
 </html>

@@ -1,569 +1,292 @@
 {% load static i18n %}
-<!DOCTYPE html>
 {% get_current_language as current_lang %}
+<!DOCTYPE html>
 <html lang="{{ current_lang }}">
 <head>
-    <meta charset="UTF-8">
-    <title>{% trans "CodeBattle - Find Game" %}</title>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-        --sidebar-width: 220px;
-        --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --bg-card: #101010;
-        --bg-card-hover: #1a1a1a;
-        --border-color: #1c1c1c;
-        --border-hover: #2a2a2a;
-        --text-primary: #e7e9ea;
-        --text-secondary: #71767b;
-        --text-muted: #3b3b3b;
-        --accent: #a970ff;
-        --accent-dim: rgba(169, 112, 255, 0.08);
-        --accent-glow: rgba(169, 112, 255, 0.2);
-        --accent-solid: rgba(169, 112, 255, 0.15);
-        --danger: #f4212e;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 40px 20px;
-        background: var(--bg-primary);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding-left: calc(var(--sidebar-width) + 40px);
-        transition: all 0.3s ease;
-        color: var(--text-primary);
-    }
-
-    .container {
-        max-width: 560px;
-        width: 100%;
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-        background: var(--bg-card);
-        padding: 48px 28px 40px;
-        border-radius: 16px;
-        text-align: center;
-        margin-bottom: 16px;
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        opacity: 0.6;
-    }
-
-    .header h1 {
-        font-family: 'Inter', sans-serif;
-        font-size: 26px;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-        color: var(--text-primary);
-        margin-bottom: 6px;
-    }
-
-    .header p {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 4px;
-        color: var(--text-secondary);
-    }
-
-    /* ===== WELCOME ===== */
-    .welcome-text {
-        background: var(--bg-card);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 16px;
-        border: 1px solid var(--border-color);
-        text-align: center;
-    }
-
-    .welcome-text h2 {
-        color: var(--text-secondary);
-        margin-bottom: 14px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .greeting {
-        color: var(--text-primary);
-        font-size: 14px;
-        padding: 14px 18px;
-        background: var(--bg-secondary);
-        border-radius: 12px;
-        border: 1px solid var(--border-color);
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .greeting::before {
-        content: '>';
-        color: var(--accent);
-        margin-right: 8px;
-        font-weight: 700;
-    }
-
-    .greeting strong {
-        color: var(--accent);
-        font-weight: 700;
-    }
-
-    /* ===== SEARCH BLOCK ===== */
-    #search-block {
-        text-align: center;
-        background: var(--bg-card);
-        border-radius: 16px;
-        padding: 48px 28px;
-        border: 1px solid var(--border-color);
-    }
-
-    #find-btn {
-        background: var(--accent);
-        color: #ffffff;
-        padding: 14px 48px;
-        border: none;
-        border-radius: 9999px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 700;
-        letter-spacing: 0.2px;
-        transition: all 0.2s ease;
-        font-family: 'Inter', sans-serif;
-        position: relative;
-    }
-
-    #find-btn:hover {
-        background: #b985ff;
-        box-shadow: 0 0 24px var(--accent-glow), 0 0 80px rgba(169, 112, 255, 0.08);
-        transform: scale(1.02);
-    }
-
-    #find-btn:active {
-        transform: scale(0.98);
-    }
-
-    /* ===== STATUS BLOCK ===== */
-    #status-block {
-        text-align: center;
-        background: var(--bg-card);
-        border-radius: 16px;
-        padding: 48px 28px;
-        border: 1px solid var(--border-color);
-    }
-
-    #status {
-        color: var(--accent);
-        font-weight: 600;
-        font-size: 14px;
-        margin-bottom: 28px;
-        font-family: 'JetBrains Mono', monospace;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    .loader {
-        margin: 0 auto;
-        width: 40px;
-        height: 40px;
-        border: 2px solid var(--border-color);
-        border-top: 2px solid var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        box-shadow: 0 0 12px var(--accent-glow);
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .hidden { display: none; }
-
-    .fade-in {
-        animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-        position: fixed;
-        left: 0; top: 0; bottom: 0;
-        width: var(--sidebar-width);
-        background: var(--bg-primary);
-        border-right: 1px solid var(--border-color);
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-        z-index: 1000;
-    }
-
-    .sidebar-header {
-        padding: 28px 24px;
-        border-bottom: 1px solid var(--border-color);
-        font-weight: 700;
-        font-size: 18px;
-        color: var(--text-primary);
-        font-family: 'Inter', sans-serif;
-        letter-spacing: -0.3px;
-    }
-
-    .nav-item {
-        text-decoration: none;
-        color: var(--text-secondary);
-        padding: 14px 24px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        font-size: 15px;
-        font-weight: 500;
-        transition: all 0.15s ease;
-        border-radius: 0;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .nav-item:hover {
-        background: var(--bg-card-hover);
-        color: var(--text-primary);
-    }
-
-    .nav-item.active {
-        background: var(--accent-dim);
-        color: var(--accent);
-        border-right: 2px solid var(--accent);
-    }
-
-    .nav-item .icon {
-        font-size: 18px;
-        width: 24px;
-        text-align: center;
-        opacity: 0.85;
-    }
-
-    .sidebar-footer {
-        margin-top: auto;
-        padding: 0;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .sidebar-footer .nav-item {
-        color: var(--text-muted);
-    }
-
-    .sidebar-footer .nav-item:hover {
-        color: var(--danger);
-        background: rgba(244, 33, 46, 0.05);
-    }
-
-    /* ===== BOTTOM NAV (mobile) ===== */
-    .bottom-nav {
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
-        background: rgba(0, 0, 0, 0.95);
-        backdrop-filter: blur(12px);
-        display: none;
-        justify-content: space-around;
-        padding: 10px 0;
-        z-index: 1000;
-        border-top: 1px solid var(--border-color);
-    }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-        body { padding-left: 20px; }
-        .sidebar { display: none; }
-        .bottom-nav { display: flex; }
-    }
-    /* ===== LANGUAGE SELECTOR ===== */
-    .lang-section {
-        margin-bottom: 16px;
-    }
-
-    .lang-label {
-        text-align: center;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        color: var(--text-muted);
-        margin-bottom: 14px;
-    }
-
-    .lang-grid {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-    }
-
-    .lang-item {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .lang-item::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        background: var(--accent);
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-
-    .lang-item:hover {
-        border-color: var(--accent);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 24px var(--accent-glow);
-    }
-
-    .lang-item:hover::before {
-        opacity: 0.08;
-    }
-
-    .lang-item:hover .lang-icon {
-        transform: scale(1.1);
-    }
-
-    .lang-icon {
-        font-size: 28px;
-        line-height: 1;
-        transition: transform 0.2s ease;
-        position: relative;
-        z-index: 1;
-    }
-
-    .lang-icon.python { color: #3776ab; }
-    .lang-icon.cpp { color: #00599c; }
-    .lang-icon.java { color: #ed8b00; }
-    .lang-icon.js { color: #f7df1e; }
-
-    .lang-name {
-        position: absolute;
-        bottom: -24px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 10px;
-        color: var(--text-muted);
-        white-space: nowrap;
-        opacity: 0;
-        transition: all 0.2s ease;
-    }
-
-    .lang-item:hover .lang-name {
-        opacity: 1;
-        color: var(--accent);
-        bottom: -22px;
-    }
-
-    .lang-wrapper {
-        position: relative;
-        padding-bottom: 8px;
-    }
-
-    .lang-item.active-lang {
-        border-color: var(--accent);
-        box-shadow: 0 0 16px var(--accent-glow);
-    }
-
-    .lang-item.wip {
-        opacity: 0.4;
-        cursor: not-allowed;
-    }
-
-    .lang-item.wip:hover {
-        transform: none;
-        box-shadow: none;
-        border-color: var(--border-color);
-    }
-
-    .toast {
-        position: fixed;
-        bottom: 32px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
-        padding: 10px 20px;
-        border-radius: 999px;
-        opacity: 0;
-        transition: all 0.3s ease;
-        pointer-events: none;
-        z-index: 9999;
-        white-space: nowrap;
-    }
-
-    .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% trans "CodeBattle - Arena" %}</title>
+  <link rel="stylesheet" href="{% static 'css/cb.css' %}">
 </head>
 <body>
-    <div class="container fade-in">
-        <div class="header">
-            <h1>CodeBattle</h1>
-            <p>Protocol // Arena 2026</p>
-        </div>
-        <div class="lang-section">
-    <div class="lang-label">{% trans "Select Language" %}</div>
-    <div class="lang-grid">
-        <div class="lang-wrapper">
-            <a href="#" class="lang-item active-lang">
-                <svg class="lang-icon python" width="28" height="28" viewBox="0 0 256 255" fill="currentColor"><path d="M126.9 0C62.7 0 66.7 28.2 66.7 28.2l.1 29.2h61.3v8.7H39.3S0 61.5 0 126.6c0 65.1 34.2 62.8 34.2 62.8h20.4v-30.2s-1.1-34.2 33.7-34.2h58c32.3 0 34.4-31.3 34.4-31.3V33.5S185.6 0 126.9 0zM92 19.2a11 11 0 110 22 11 11 0 010-22z"/><path d="M128.6 254.1c64.2 0 60.2-28.2 60.2-28.2l-.1-29.2h-61.3v-8.7h88.8s39.3 4.7 39.3-60.4c0-65.1-34.2-62.8-34.2-62.8H201v30.2s1.1 34.2-33.7 34.2h-58c-32.3 0-34.4 31.3-34.4 31.3v60.2s-5.2 33.4 53.7 33.4zm34.9-19.2a11 11 0 110-22 11 11 0 010 22z"/></svg>
-                <span class="lang-name">Python</span>
-            </a>
-        </div>
-        <div class="lang-wrapper">
-            <a href="#" class="lang-item wip" onclick="showWIP(event)">
-                <svg class="lang-icon cpp" width="28" height="28" viewBox="0 0 306 344" fill="currentColor"><path d="M302.1 258l-90.6-52.3c3.8-11 5.9-22.8 5.9-35.1 0-57.3-46.5-103.8-103.8-103.8S9.8 113.3 9.8 170.6s46.5 103.8 103.8 103.8c36.2 0 68.1-18.6 86.7-46.7l90.6 52.3c7.3 4.2 16.6 1.7 20.8-5.5 4.2-7.3 1.7-16.6-5.6-20.5zM113.6 236c-36.1 0-65.4-29.3-65.4-65.4s29.3-65.4 65.4-65.4 65.4 29.3 65.4 65.4S149.7 236 113.6 236z"/><path d="M240 148h-14v-14h-16v14h-14v16h14v14h16v-14h14zM296 148h-14v-14h-16v14h-14v16h14v14h16v-14h14z"/></svg>
-                <span class="lang-name">C++</span>
-            </a>
-        </div>
-        <div class="lang-wrapper">
-            <a href="#" class="lang-item wip" onclick="showWIP(event)">
-                <svg class="lang-icon java" width="28" height="28" viewBox="0 0 256 346" fill="currentColor"><path d="M83 267s-14 8 9 11c28 3 42 3 73-4 0 0 8 5 19 10-68 29-154-2-101-17zM74 230s-15 11 8 14c30 3 53 3 94-5 0 0 6 5 14 8-82 24-174 2-116-17z"/><path d="M143 166c17 19-4 36-4 36s42-22 23-49c-18-26-32-38 43-82 0 0-117 29-62 95zM233 295s10 8-11 15c-39 12-163 16-198 0-12-5 11-13 19-14l12-2c-14-10-91 19-39 27 142 22 258-10 217-26zM89 190s-64 15-23 21c18 2 53 2 86-1 27-3 54-8 54-8l-16 9c-66 17-193 9-156-8 31-15 55-13 55-13zM202 253c67-35 36-68 14-64-5 1-8 2-8 2s2-3 6-5c42-15 74 44-14 67 0 0 1-1 2-2z"/><path d="M162 0s37 37-35 94c-58 46-13 72 0 102-34-31-59-58-42-83C109 77 176 59 162 0z"/><path d="M95 345c64 4 163-2 165-33 0 0-4 11-52 20-53 10-119 9-158 2 0 0 8 7 45 11z"/></svg>
-                <span class="lang-name">Java</span>
-            </a>
-        </div>
-        <div class="lang-wrapper">
-            <a href="#" class="lang-item wip" onclick="showWIP(event)">
-                <svg class="lang-icon js" width="28" height="28" viewBox="0 0 256 256" fill="currentColor"><path d="M0 0h256v256H0V0zm67 214c4 20 18 30 37 30 20 0 33-10 33-37v-72h-22v71c0 12-5 16-13 16s-14-6-18-14l-17 6zm83-3c5 23 22 34 48 34 25 0 42-13 42-35 0-21-12-31-36-40-18-7-22-10-22-18 0-7 5-11 14-11 10 0 16 4 21 15l19-10c-8-16-20-24-40-24-23 0-39 14-39 34 0 20 12 30 35 39 19 7 23 11 23 19s-6 13-17 13c-13 0-20-7-25-17l-23 1z"/></svg>
-                <span class="lang-name">JS</span>
-            </a>
-        </div>
+<div class="app">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <span class="bolt">⚡</span>
+      <span>CodeBattle</span>
     </div>
-</div>
-        <div class="welcome-text">
-            <h2>System Online</h2>
-            <div class="greeting">
-                {% trans "Welcome," %} <strong id="player-nick">{{username}}</strong>
+    <div class="sidebar-nav">
+      <span class="sidebar-section-label">{% trans "Play" %}</span>
+      <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item active">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 2-2"/><path d="m17 13 2-2"/><path d="m3 21 4-4"/><path d="m21 3-5.5 5.5"/></svg>
+        </span>
+        <span>{% trans "Arena" %}</span>
+      </a>
+      <span class="sidebar-section-label">{% trans "Stats" %}</span>
+      <a href="http://hub.codebattle.local:8003/profile/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </span>
+        <span>{% trans "Profile" %}</span>
+      </a>
+      <a href="http://hub.codebattle.local:8003/profile/rating/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+        </span>
+        <span>{% trans "Rating" %}</span>
+      </a>
+      <a href="http://game.codebattle.local:8002/game/history/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span>{% trans "History" %}</span>
+      </a>
+    </div>
+    <div class="sidebar-foot">
+      <form action="/i18n/setlang/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <div class="lang-toggle">
+          <button type="submit" name="language" value="en" {% if current_lang == 'en' %}class="active"{% endif %}>EN</button>
+          <button type="submit" name="language" value="ru" {% if current_lang == 'ru' %}class="active"{% endif %}>RU</button>
+        </div>
+      </form>
+      <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item">
+        <span class="nav-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </span>
+        <span>{% trans "Sign Out" %}</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="app-content">
+    <div class="page" style="max-width:860px;">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">{% trans "Arena" %}</h1>
+          <div class="page-subtitle">match · 8001 · 1v1 ranked</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="badge badge-muted">
+            <span class="dot" style="background:var(--success);"></span>
+            {% trans "Online" %}
+          </span>
+          <span class="badge badge-accent">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c2 5 6 6 6 11a6 6 0 1 1-12 0c0-3 2-4 3-7 2 2 3 4 3 4s0-3 0-8z"/></svg>
+            ELO 1548
+          </span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:start;">
+        <!-- Left column -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Terminal greeting -->
+          <div style="background:var(--surface-0);border:1px solid var(--border);border-radius:var(--r-lg);font-family:var(--font-mono);font-size:12px;overflow:hidden;">
+            <div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;color:var(--text-muted);font-size:11px;letter-spacing:0.05em;">
+              <span class="dot" style="background:#ff5f57;"></span>
+              <span class="dot" style="background:#febc2e;"></span>
+              <span class="dot" style="background:#28c840;"></span>
+              <span style="margin-left:8px;">~/codebattle ─ zsh</span>
             </div>
+            <pre style="margin:0;padding:14px 16px;color:var(--text-dim);white-space:pre-wrap;min-height:84px;" id="terminal-out"></pre>
+          </div>
+
+          <!-- Language selector -->
+          <div>
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:600;">{% trans "Choose language" %}</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">1 / 4 {% trans "available" %}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+              <!-- Python (active) -->
+              <div style="background:var(--accent-softer);border:1px solid var(--accent);border-radius:var(--r-lg);padding:18px 14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;position:relative;overflow:hidden;">
+                <div style="display:flex;width:100%;align-items:center;justify-content:space-between;">
+                  <div style="color:var(--accent-text);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h4a3 3 0 0 1 3 3v4H8a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h2"/><path d="M15 21h-4a3 3 0 0 1-3-3v-4h8a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3h-2"/><circle cx="10" cy="6.5" r=".6" fill="currentColor"/><circle cx="14" cy="17.5" r=".6" fill="currentColor"/></svg>
+                  </div>
+                  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">3.11</span>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;letter-spacing:-0.01em;">Python</div>
+                  <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px;">.py</div>
+                </div>
+                <span style="position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:oklch(0.15 0.05 290);">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </span>
+              </div>
+              <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 14px;display:flex;flex-direction:column;gap:10px;opacity:0.45;cursor:not-allowed;" onclick="showWIP()">
+                <div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><div style="color:var(--text-dim);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M10 10v6a2 2 0 0 1-3 0M14 10c.5 0 2 .2 2 2s-3 1.5-3 3.5 1 1.5 3 1.5"/></svg></div><span style="font-family:var(--font-mono);font-size:10px;color:var(--warning);">WIP</span></div>
+                <div><div style="font-size:13px;font-weight:600;">JavaScript</div><div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px;">.js</div></div>
+              </div>
+              <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 14px;display:flex;flex-direction:column;gap:10px;opacity:0.45;cursor:not-allowed;" onclick="showWIP()">
+                <div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><div style="color:var(--text-dim);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h5M2 12h4M3 15h5"/><path d="M21 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0z"/></svg></div><span style="font-family:var(--font-mono);font-size:10px;color:var(--warning);">WIP</span></div>
+                <div><div style="font-size:13px;font-weight:600;">Go</div><div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px;">.go</div></div>
+              </div>
+              <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 14px;display:flex;flex-direction:column;gap:10px;opacity:0.45;cursor:not-allowed;" onclick="showWIP()">
+                <div style="display:flex;width:100%;align-items:center;justify-content:space-between;"><div style="color:var(--text-dim);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8 8h6a2 2 0 1 1 0 4h-3M8 8v8M11 12h2l3 4M8 12h3"/></svg></div><span style="font-family:var(--font-mono);font-size:10px;color:var(--warning);">WIP</span></div>
+                <div><div style="font-size:13px;font-weight:600;">Rust</div><div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:2px;">.rs</div></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div id="search-block">
-            <button id="find-btn" onclick="startSearch()">{% trans "Find Match" %}</button>
-        </div>
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
 
-        <div id="status-block" class="hidden">
-            <p id="status">{% trans "Searching for opponent..." %}</p>
-            <div class="loader"></div>
+          <!-- Find match panel -->
+          <div id="search-block" style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px 28px;text-align:center;position:relative;overflow:hidden;">
+            <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;">{% trans "Ready to play" %}</div>
+            <div style="font-size:18px;font-weight:600;margin-bottom:4px;">1v1 · Ranked</div>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);margin-bottom:24px;">random task · ~10 min · ELO ±25</div>
+            <button id="find-btn" onclick="startSearch()" class="btn btn-primary btn-lg" style="width:100%;padding:18px 22px;font-size:15px;box-shadow:var(--shadow-glow);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
+              {% trans "Find Match" %}
+            </button>
+            <div style="margin-top:16px;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);letter-spacing:0.08em;">press [F] to queue</div>
+          </div>
+
+          <!-- Searching panel (hidden) -->
+          <div id="status-block" style="display:none;background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-xl);padding:40px 32px;text-align:center;position:relative;overflow:hidden;" class="fade-in">
+            <!-- radar -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;">
+              <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:1px solid oklch(0.7 0.18 290/0.3);animation:radar 2.4s ease-out infinite;"></div>
+              <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:1px solid oklch(0.7 0.18 290/0.3);animation:radar 2.4s ease-out infinite;animation-delay:0.8s;"></div>
+              <div style="position:absolute;top:50%;left:50%;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;border:1px solid oklch(0.7 0.18 290/0.3);animation:radar 2.4s ease-out infinite;animation-delay:1.6s;"></div>
+            </div>
+            <div style="position:relative;z-index:1;">
+              <div style="width:64px;height:64px;border-radius:50%;background:var(--accent-soft);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;color:var(--accent-text);border:1px solid oklch(0.7 0.18 290/0.3);">
+                <span class="spinner" style="width:28px;height:28px;"></span>
+              </div>
+              <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:var(--accent-text);text-transform:uppercase;margin-bottom:8px;">{% trans "Searching for opponent" %}</div>
+              <div style="font-family:var(--font-mono);font-size:36px;font-weight:600;letter-spacing:-0.02em;margin-bottom:6px;" id="search-timer">00:00</div>
+              <div id="status" style="font-family:var(--font-mono);font-size:12px;color:var(--text-muted);min-height:18px;">{% trans "Searching for opponent..." %}</div>
+              <button class="btn btn-secondary" onclick="cancelSearch()" style="margin-top:24px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                {% trans "Cancel" %}
+              </button>
+            </div>
+          </div>
+
         </div>
+      </div>
     </div>
+  </div>
 
-<div class="toast" id="wip-toast">⚙ {% trans "In Development" %}</div>
+  <!-- Mobile bottom nav -->
+  <nav class="mobile-bottom-nav">
+    <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item active">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 2-2"/><path d="m17 13 2-2"/><path d="m3 21 4-4"/><path d="m21 3-5.5 5.5"/></svg>
+      </span>
+      <span>{% trans "Arena" %}</span>
+    </a>
+    <a href="http://hub.codebattle.local:8003/profile/" class="nav-item">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </span>
+      <span>{% trans "Profile" %}</span>
+    </a>
+    <a href="http://hub.codebattle.local:8003/profile/rating/" class="nav-item">
+      <span class="nav-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+      </span>
+      <span>{% trans "Rating" %}</span>
+    </a>
+  </nav>
+
+  <!-- WIP toast -->
+  <div id="wip-toast" style="position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-1);border:1px solid var(--border);color:var(--text-muted);font-family:var(--font-mono);font-size:12px;padding:10px 20px;border-radius:999px;opacity:0;transition:all 0.3s ease;pointer-events:none;z-index:9999;white-space:nowrap;">
+    ⚙ {% trans "In Development" %}
+  </div>
+</div>
 
 <script>
-let wipTimer = null;
-function showWIP(e) {
-    e.preventDefault();
-    const toast = document.getElementById('wip-toast');
-    toast.classList.add('show');
-    clearTimeout(wipTimer);
-    wipTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+// Terminal typewriter
+const username = "{{ username }}";
+const lines = [`$ whoami\n${username}`, `$ cat status\nready_to_battle = true`];
+const full = lines.join('\n');
+let i = 0;
+const out = document.getElementById('terminal-out');
+const cursor = '<span style="display:inline-block;width:7px;height:13px;background:var(--accent-text);vertical-align:middle;animation:pulse 1.1s steps(2) infinite;"></span>';
+const id = setInterval(() => {
+  i++;
+  const text = full.slice(0, i);
+  out.innerHTML = text.split('\n').map(line =>
+    line.startsWith('$ ')
+      ? `<div><span style="color:var(--accent-text)">$</span> <span style="color:var(--text)">${line.slice(2)}</span></div>`
+      : `<div style="color:var(--text-dim)">${line}</div>`
+  ).join('') + cursor;
+  if (i >= full.length) clearInterval(id);
+}, 18);
+
+// WIP toast
+let wipTimer;
+function showWIP() {
+  const toast = document.getElementById('wip-toast');
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(wipTimer);
+  wipTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2000);
 }
 
+// Search / WebSocket
 let socket = null;
+let searchTimer = null;
+let searchSeconds = 0;
+const statuses = [
+  '{% trans "connecting to matchmaking pool…" %}',
+  '{% trans "searching opponents…" %}',
+  '{% trans "waiting for handshake…" %}',
+];
+let statusIdx = 0;
+
 function startSearch() {
-    const btn = document.getElementById('find-btn');
-    btn.disabled = true;  // сразу блокируем
+  document.getElementById('search-block').style.display = 'none';
+  document.getElementById('status-block').style.display = 'block';
+  searchSeconds = 0;
+  searchTimer = setInterval(() => {
+    searchSeconds++;
+    const mm = String(Math.floor(searchSeconds/60)).padStart(2,'0');
+    const ss = String(searchSeconds%60).padStart(2,'0');
+    document.getElementById('search-timer').textContent = `${mm}:${ss}`;
+    if(searchSeconds % 2 === 0) {
+      statusIdx = (statusIdx+1) % statuses.length;
+      document.getElementById('status').textContent = statuses[statusIdx];
+    }
+  }, 1000);
 
-    document.getElementById('search-block').classList.add('hidden');
-    document.getElementById('status-block').classList.remove('hidden');
-
-    socket = new WebSocket("ws://match.codebattle.local:8001/ws/match/");
-
-    socket.onopen = function () {
-        socket.send(JSON.stringify({ action: "find_match" }));
-    };
-
-    socket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-        if (data.action === "redirect") {
-            window.location.href = data.url;
-        }
-    };
-
-    socket.onerror = function() {
-        btn.disabled = false;
-        document.getElementById('search-block').classList.remove('hidden');
-        document.getElementById('status-block').classList.add('hidden');
-    };
+  socket = new WebSocket("ws://match.codebattle.local:8001/ws/match/");
+  socket.onopen = () => socket.send(JSON.stringify({action:"find_match"}));
+  socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if(data.action === "redirect") window.location.href = data.url;
+  };
+  socket.onerror = () => cancelSearch();
 }
-</script>
 
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <span>&#9889; CB</span>
-        </div>
-        <a href="http://match.codebattle.local:8001/match/hub/" class="nav-item active">
-            <span class="icon">&#9670;</span>
-            <span>{% trans "Arena" %}</span>
-        </a>
-        <a href="http://hub.codebattle.local:8003/profile/" class="nav-item">
-            <span class="icon">&#9675;</span>
-            <span>{% trans "Profile" %}</span>
-        </a>
-        <a href="http://hub.codebattle.local:8003/profile/rating" class="nav-item">
-            <span class="icon">&#9651;</span>
-            <span>{% trans "Rating" %}</span>
-        </a>
-        <a href="http://game.codebattle.local:8002/game/history" class="nav-item">
-            <span class="icon">&#9707;</span>
-            <span>{% trans "History" %}</span>
-        </a>
-        <a href="/tasks" class="nav-item">
-            <span class="icon">&#9656;</span>
-            <span>{% trans "Tasks" %}</span>
-        </a>
-        <div class="sidebar-footer">
-            <form action="/i18n/setlang/" method="post" style="padding: 8px 16px; display: flex; gap: 6px;">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                <button type="submit" name="language" value="en" style="flex:1; background:{% if current_lang == 'en' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">EN</button>
-                <button type="submit" name="language" value="ru" style="flex:1; background:{% if current_lang == 'ru' %}var(--accent){% else %}var(--bg-card){% endif %}; border:1px solid var(--border-color); color:var(--text-primary); padding:5px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:600;">RU</button>
-            </form>
-            <a href="http://hub.codebattle.local:8003/profile/logout/" class="nav-item">
-                <span class="icon">&#9109;</span>
-                <span>{% trans "Sign Out" %}</span>
-            </a>
-        </div>
-    </nav>
+function cancelSearch() {
+  clearInterval(searchTimer);
+  if(socket) socket.close();
+  document.getElementById('search-block').style.display = 'block';
+  document.getElementById('status-block').style.display = 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'f' || e.key === 'F') {
+    if(document.getElementById('search-block').style.display !== 'none') startSearch();
+  }
+});
+</script>
 </body>
 </html>

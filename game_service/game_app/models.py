@@ -11,7 +11,7 @@ class Task(models.Model):
     initial_code = models.TextField(
         blank=True, 
         null=True,
-        default="# Входные данные: a, b\n# Сохраните результат в переменную result\n\nresult = a + b"
+        default="def solve(a, b):\n    # Ваш код здесь\n    return a + b"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     tests = models.JSONField(

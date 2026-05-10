@@ -1,0 +1,18 @@
+[
+  {
+    "model": "game_app.task",
+    "pk": 1,
+    "fields": {
+      "title": "Сумма двух чисел",
+      "description": "Даны два числа a и b. Верните их сумму.",
+      "initial_code": "def solve(a, b):\n    # Ваш код здесь\n    return a + b",
+      "created_at": "2026-01-01T00:00:00Z",
+      "tests": [
+        {"variables": {"a": 1, "b": 2}, "expected": 3},
+        {"variables": {"a": 0, "b": 0}, "expected": 0},
+        {"variables": {"a": -5, "b": 5}, "expected": 0},
+        {"variables": {"a": 100, "b": 200}, "expected": 300}
+      ]
+    }
+  }
+]

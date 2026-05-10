@@ -42,7 +42,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             # Проверка токена
             access = AccessToken(token)
             user_id = access["user_id"]
-            self.user = await self.get_user(user_id)
+            username = access.get("username", f"user_{user_id}")
+            self.user = await self.get_user(user_id, username)
             
             # Имя комнаты создаем на основе ID двух пользователей (всегда одинаково для пары)
             self.other_username = self.scope['url_route']['kwargs']['username']
@@ -87,8 +88,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     @database_sync_to_async
-    def get_user(self, user_id):
-        return User.objects.get(id=user_id)
+    def get_user(self, user_id, username=None):
+        user, _ = User.objects.get_or_create(
+            id=user_id,
+            defaults={"username": username or f"user_{user_id}"}
+        )
+        return user
 
     @database_sync_to_async
     def get_user_by_name(self, username):

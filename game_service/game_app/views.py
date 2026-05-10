@@ -133,13 +133,17 @@ class GameRoomView(View):
                             timeout=60 * 10
                         )
                         winner_id = user.id
-                        loser_id = room.player2_id if user.id == room.player1_id else room.player1_id
+                        loser = room.player2 if user.id == room.player1_id else room.player1
+                        loser_id = loser.id if loser else None
+                        loser_username = loser.username if loser else None
 
                         match_result_event = {
                             "event": "match_finished",
                             "match_id": room.match_id,
                             "winner_id": winner_id,
+                            "winner_username": username,
                             "loser_id": loser_id,
+                            "loser_username": loser_username,
                             "task_id": room.task_id,
                             "task_title": room.task.title
                         }

@@ -64,8 +64,9 @@ def main():
                 results.append({
                     "test_num": i + 1,
                     "passed": actual == expected,
+                    "input": variables,
+                    "output": actual,
                     "expected": expected,
-                    "actual": actual
                 })
             except TimeoutError:
                 results.append({

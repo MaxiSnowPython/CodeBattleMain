@@ -1,242 +1,84 @@
 {% extends 'layer.html' %}
 {% load i18n %}
-{% block head %}
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Контейнер для формы */
-.auth-container {
-    max-width: 450px;
-    width: 100%;
-    margin: 20px;
-}
-
-/* Заголовок страницы */
-.header-bar {
-    background: white;
-    color: #667eea;
-    padding: 30px 20px;
-    border-radius: 10px 10px 0 0;
-    text-align: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.header-bar h1 {
-    margin: 0;
-    font-size: 32px;
-    font-weight: bold;
-}
-
-/* Тело карточки с формой */
-.card-body {
-    background: white;
-    padding: 40px 30px;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* Стили формы */
-form {
-    background: white;
-    padding: 40px 30px;
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* Если header-bar и form вместе */
-.header-bar + form {
-    border-radius: 0 0 10px 10px;
-    margin-top: -1px;
-}
-
-/* Лейблы */
-label {
-    display: block;
-    color: #333;
-    font-weight: bold;
-    margin-bottom: 8px;
-    margin-top: 15px;
-    font-size: 14px;
-}
-
-/* Поля ввода */
-input[type="text"],
-input[type="password"],
-input[type="email"] {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background: #fafafa;
-}
-
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus {
-    outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Кнопка отправки */
-input[type="submit"],
-.button {
-    width: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 14px 25px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 25px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-}
-
-input[type="submit"]:hover,
-.button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
-input[type="submit"]:active,
-.button:active {
-    transform: translateY(0);
-}
-
-/* Текст и ссылки */
-p {
-    text-align: center;
-    margin-top: 20px;
-    color: #666;
-    font-size: 14px;
-}
-
-a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-a:hover {
-    color: #764ba2;
-    text-decoration: underline;
-}
-
-/* Сообщения об ошибках */
-.errorlist {
-    list-style: none;
-    padding: 0;
-    margin: 10px 0 0 0;
-}
-
-.errorlist li {
-    background: #fee;
-    color: #c33;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    font-size: 14px;
-    border-left: 4px solid #c33;
-}
-
-/* Сообщения Django (messages) */
-.messages {
-    margin-top: 15px;
-}
-
-.messages p {
-    background: #d4edda;
-    color: #155724;
-    padding: 12px 15px;
-    border-radius: 5px;
-    border-left: 4px solid #28a745;
-    text-align: left;
-}
-
-/* Хелп текст */
-.helptext {
-    display: block;
-    font-size: 12px;
-    color: #999;
-    margin-top: 5px;
-}
-
-/* Параграфы с полями формы */
-form p {
-    margin: 0;
-    text-align: left;
-}
-
-/* Анимация появления */
-.auth-container {
-    animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Адаптивность */
-@media (max-width: 600px) {
-    .auth-container {
-        margin: 10px;
-    }
-    
-    .header-bar,
-    .card-body,
-    form {
-        padding: 20px;
-    }
-    
-    .header-bar h1 {
-        font-size: 24px;
-    }
-}
-</style>
-{% endblock head %}
-
 {% block content %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;overflow:hidden;">
+  <!-- grid bg -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(to right,rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,black 30%,transparent 80%);pointer-events:none;"></div>
 
-<div class="auth-container">
-    <div class="header-bar">
-        <h1>🔐 {% trans "Login" %}</h1>
+  <div style="width:100%;max-width:420px;position:relative;z-index:1;" class="slide-up">
+    <!-- logo -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:18px;font-weight:600;letter-spacing:-0.02em;">
+        <span style="color:var(--accent-text);font-size:22px;">⚡</span>
+        <span>CodeBattle</span>
+      </div>
+      <div style="margin-top:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;">code · ship · win</div>
     </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{form.as_p}}
-        <input type="submit" value="{% trans 'Sign In' %}">
+    <!-- lang switcher -->
+    {% get_current_language as current_lang %}
+    <form action="/i18n/setlang/" method="post" style="display:flex;justify-content:center;gap:6px;margin-bottom:20px;">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" name="language" value="en" style="font-family:var(--font-mono);font-size:11px;padding:5px 14px;border-radius:var(--r-sm);border:1px solid var(--border);background:{% if current_lang == 'en' %}var(--surface-3){% else %}var(--surface-1){% endif %};color:{% if current_lang == 'en' %}var(--text){% else %}var(--text-muted){% endif %};">EN</button>
+      <button type="submit" name="language" value="ru" style="font-family:var(--font-mono);font-size:11px;padding:5px 14px;border-radius:var(--r-sm);border:1px solid var(--border);background:{% if current_lang == 'ru' %}var(--surface-3){% else %}var(--surface-1){% endif %};color:{% if current_lang == 'ru' %}var(--text){% else %}var(--text-muted){% endif %};">RU</button>
     </form>
 
-    <div style="background: white; padding: 0 30px 30px; border-radius: 0 0 10px 10px; margin-top: -1px;">
-        <p>{% trans "Don't have an account?" %} <a href="{% url 'register' %}">{% trans "Register" %}</a></p>
+    <!-- card -->
+    <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px 32px 28px;box-shadow:var(--shadow-lg);">
+      <div style="margin-bottom:22px;">
+        <h1 style="font-size:20px;font-weight:600;margin:0;letter-spacing:-0.01em;">{% trans "Sign in" %}</h1>
+        <div style="margin-top:4px;font-size:13px;color:var(--text-muted);">{% trans "Resume your matchmaking session" %}</div>
+      </div>
+
+      <form method="POST" style="display:flex;flex-direction:column;gap:14px;">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="form-error">
+          <span>!</span>
+          <span>{{ form.non_field_errors|join:", " }}</span>
+        </div>
+        {% endif %}
+
+        <div>
+          <label class="label" for="id_username">{% trans "Username" %}</label>
+          <input id="id_username" class="input" type="text" name="username" placeholder="ada_lovelace" value="{{ form.username.value|default:'' }}" autofocus>
+          {% if form.username.errors %}<div class="form-error" style="margin-top:6px;"><span>!</span><span>{{ form.username.errors|join:", " }}</span></div>{% endif %}
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <label class="label" for="id_password" style="margin-bottom:0;">{% trans "Password" %}</label>
+          </div>
+          <div style="position:relative;margin-top:6px;">
+            <input id="id_password" class="input" type="password" name="password" placeholder="••••••••" style="padding-right:40px;">
+            <button type="button" onclick="togglePw(this)" data-target="id_password"
+              style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);padding:4px;display:flex;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          {% if form.password.errors %}<div class="form-error" style="margin-top:6px;"><span>!</span><span>{{ form.password.errors|join:", " }}</span></div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="margin-top:6px;width:100%;box-shadow:var(--shadow-glow);">
+          {% trans "Sign in" %}
+        </button>
+
+        <div style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:4px;">
+          {% trans "New to CodeBattle?" %} <a href="{% url 'register' %}" style="color:var(--accent-text);font-weight:500;">{% trans "Create account" %}</a>
+        </div>
+      </form>
     </div>
+
+    <div style="text-align:center;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);margin-top:24px;letter-spacing:0.08em;">auth · 8000 · v0.42</div>
+  </div>
 </div>
 
-{% endblock content %}
+<script>
+function togglePw(btn) {
+  const inp = document.getElementById(btn.dataset.target);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+</script>
+{% endblock %}

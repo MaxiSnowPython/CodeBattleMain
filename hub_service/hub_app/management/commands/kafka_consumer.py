@@ -30,17 +30,22 @@ class Command(BaseCommand):
                 data = json.loads(msg.value().decode('utf-8'))
                 
                 if data.get("event") == "match_finished":
-                    winner_id = data["winner_id"]
-                    loser_id = data["loser_id"]
+                    winner_id = data.get("winner_id")
+                    loser_id = data.get("loser_id")
+                    winner_username = data.get("winner_username", f"user_{winner_id}")
+                    loser_username = data.get("loser_username", f"user_{loser_id}")
+
                     if winner_id:
+                        User.objects.get_or_create(id=winner_id, defaults={"username": winner_username})
                         winner_profile, _ = UserProfile.objects.get_or_create(user_id=winner_id)
                         winner_profile.games_won += 1
-                        winner_profile.games_played += 1 
+                        winner_profile.games_played += 1
                         winner_profile.save()
 
                     if loser_id:
+                        User.objects.get_or_create(id=loser_id, defaults={"username": loser_username})
                         loser_profile, _ = UserProfile.objects.get_or_create(user_id=loser_id)
-                        loser_profile.games_played += 1 
+                        loser_profile.games_played += 1
                         loser_profile.save()
 
                     self.stdout.write(f"📈 Статистика обновлена: Победитель {winner_id}, Проигравший {loser_id}")

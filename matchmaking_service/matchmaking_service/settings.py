@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',

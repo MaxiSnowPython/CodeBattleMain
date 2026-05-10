@@ -3,498 +3,288 @@
 <!DOCTYPE html>
 <html lang="{{ current_lang }}">
 <head>
-    <meta charset="UTF-8">
-    <title>{% trans "Coding Battle - Game Room" %}</title>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-
-    :root {
-        --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --bg-card: #101010;
-        --bg-card-hover: #1a1a1a;
-        --bg-input: #080808;
-        --border-color: #1c1c1c;
-        --border-hover: #2a2a2a;
-        --text-primary: #e7e9ea;
-        --text-secondary: #71767b;
-        --text-muted: #3b3b3b;
-        --accent: #a970ff;
-        --accent-dim: rgba(169, 112, 255, 0.08);
-        --accent-glow: rgba(169, 112, 255, 0.2);
-        --success: #00ba7c;
-        --success-dim: rgba(0, 186, 124, 0.08);
-        --danger: #f4212e;
-        --danger-dim: rgba(244, 33, 46, 0.08);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: var(--bg-primary);
-        color: var(--text-primary);
-        min-height: 100vh;
-        margin: 0;
-        padding: 40px 20px;
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-        background: var(--bg-card);
-        padding: 28px 24px;
-        border-radius: 16px;
-        text-align: center;
-        margin-bottom: 16px;
-        border: 1px solid var(--border-color);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        opacity: 0.6;
-    }
-
-    /* ===== PLAYERS ===== */
-    .players {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 16px;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .player {
-        background: #2a2a2a;
-        padding: 20px;
-        border-radius: 16px;
-        flex: 1;
-        text-align: center;
-        color: var(--text-primary);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 22px;
-        font-weight: 700;
-        border: 1px solid var(--border-color);
-        transition: border-color 0.15s;
-    }
-
-    .player:hover {
-        border-color: var(--border-hover);
-    }
-
-    .current-user {
-        background: var(--accent-dim);
-        border: 1px solid var(--accent);
-    }
-
-    .current-user:hover {
-        border-color: var(--accent);
-    }
-
-    /* ===== GAME RESULT ===== */
-    .game-finished {
-        padding: 32px;
-        border-radius: 16px;
-        text-align: center;
-        margin-bottom: 16px;
-        font-size: 22px;
-        font-weight: 700;
-        font-family: 'Inter', sans-serif;
-        animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid var(--border-color);
-    }
-
-    .game-finished.winner {
-        background: var(--success-dim);
-        color: var(--success);
-        border-color: var(--success);
-    }
-
-    .game-finished.loser {
-        background: var(--danger-dim);
-        color: var(--danger);
-        border-color: var(--danger);
-    }
-
-    .game-finished small {
-        display: block;
-        margin-top: 10px;
-        font-size: 14px;
-        font-weight: 500;
-        opacity: 0.8;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.96); }
-        to { opacity: 1; transform: scale(1); }
-    }
-
-    /* ===== GAME CONTAINER ===== */
-    .game-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-
-    .panel {
-        background: var(--bg-card);
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid var(--border-color);
-    }
-
-    /* ===== CODE EDITOR ===== */
-    textarea {
-        width: 100%;
-        height: 300px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 14px;
-        line-height: 1.6;
-        padding: 16px;
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        resize: vertical;
-        box-sizing: border-box;
-        background: var(--bg-input);
-        color: var(--text-primary);
-        outline: none;
-        transition: border-color 0.2s;
-    }
-
-    textarea:focus {
-        border-color: var(--accent);
-    }
-
-    textarea:disabled {
-        background: var(--bg-secondary);
-        color: var(--text-muted);
-        cursor: not-allowed;
-        border-color: var(--border-color);
-    }
-
-    /* ===== BUTTONS ===== */
-    .button {
-        background: var(--accent);
-        color: #fff;
-        padding: 12px 24px;
-        border: none;
-        border-radius: 9999px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 700;
-        font-family: 'Inter', sans-serif;
-        margin: 10px 8px 0 0;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.15s ease;
-    }
-
-    .button:hover {
-        background: #b985ff;
-        box-shadow: 0 0 20px var(--accent-glow);
-        transform: translateY(-1px);
-    }
-
-    .button:active {
-        transform: scale(0.98);
-    }
-
-    .leave-btn {
-        background: transparent;
-        color: var(--text-secondary);
-        border: 1px solid var(--border-color);
-    }
-
-    .leave-btn:hover {
-        background: var(--bg-card-hover);
-        color: var(--text-primary);
-        border-color: var(--border-hover);
-        box-shadow: none;
-    }
-
-    .new-match-btn {
-        background: var(--accent);
-        font-size: 16px;
-        padding: 14px 32px;
-    }
-
-    .new-match-btn:hover {
-        background: #b985ff;
-        box-shadow: 0 0 24px var(--accent-glow);
-    }
-
-    /* ===== RESULT PANEL ===== */
-    .result-panel {
-        margin-top: 16px;
-        padding: 16px;
-        border-radius: 12px;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-
-    .test-result {
-        padding: 10px 14px;
-        margin: 6px 0;
-        border-radius: 8px;
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        color: var(--text-primary);
-    }
-
-    .test-passed {
-        border-left: 3px solid var(--success);
-        background: var(--success-dim);
-    }
-
-    .test-failed {
-        border-left: 3px solid var(--danger);
-        background: var(--danger-dim);
-    }
-
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 768px) {
-        .game-container {
-            grid-template-columns: 1fr;
-        }
-
-        .players {
-            flex-direction: column;
-        }
-    }
-    .lang-switcher-float {
-        position: fixed; top: 12px; right: 16px;
-        display: flex; gap: 4px; z-index: 9999;
-    }
-    .lang-switcher-float button {
-        background: rgba(0,0,0,0.6); border: 1px solid #444;
-        color: #ccc; padding: 4px 10px; border-radius: 4px;
-        cursor: pointer; font-size: 11px; font-weight: 600;
-    }
-    .lang-switcher-float button.active { background: #5865f2; color: white; border-color: #5865f2; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% trans "CodeBattle - Game Room" %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/cb.css' %}">
+  <style>
+    body { padding: 0; }
+    .game-wrap { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+    .game-header { background: var(--surface-0); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .game-panels { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 0; overflow: hidden; }
+    .task-panel { border-right: 1px solid var(--border); display: flex; flex-direction: column; background: var(--surface-0); overflow: hidden; }
+    .editor-panel { display: flex; flex-direction: column; background: #0c0c12; overflow: hidden; }
+    .panel-tabs { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: var(--surface-0); flex-shrink: 0; }
+    .tab-btn { padding: 5px 12px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: transparent; border-radius: var(--r-sm); transition: all 0.15s; }
+    .tab-btn.active { color: var(--text); background: var(--surface-2); }
+    .panel-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
+    .code-editor-wrap { flex: 1; display: flex; overflow: hidden; position: relative; }
+    .line-nums { padding: 14px 8px 14px 14px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--text-faint); user-select: none; text-align: right; background: #0a0a10; border-right: 1px solid var(--border); min-width: 44px; flex-shrink: 0; overflow: hidden; }
+    .code-area { flex: 1; background: transparent; border: none; outline: none; resize: none; padding: 14px 16px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; color: var(--text); tab-size: 4; }
+    .editor-toolbar { padding: 12px 20px; border-top: 1px solid var(--border); background: var(--surface-0); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .results-strip { border-top: 1px solid var(--border); background: var(--surface-0); padding: 14px 20px; max-height: 260px; overflow-y: auto; flex-shrink: 0; }
+    .test-item { border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px 14px; font-family: var(--font-mono); font-size: 12px; margin-bottom: 8px; }
+    .test-item.passed { background: oklch(0.78 0.16 150 / 0.04); border-color: oklch(0.78 0.16 150 / 0.3); }
+    .test-item.failed { background: oklch(0.68 0.22 25 / 0.04); border-color: oklch(0.68 0.22 25 / 0.3); }
+    .player-card { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .player-card.right { flex-direction: row-reverse; }
+    .victory-overlay { position: absolute; inset: 0; background: rgba(8,8,14,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 50; animation: fadeIn 0.3s ease; }
+  </style>
 </head>
 <body>
-    <form class="lang-switcher-float" action="/i18n/setlang/" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-        <button type="submit" name="language" value="en" {% if current_lang == 'en' %}class="active"{% endif %}>EN</button>
-        <button type="submit" name="language" value="ru" {% if current_lang == 'ru' %}class="active"{% endif %}>RU</button>
-    </form>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Coding Battle — Комната #{{ room.id }}</h1>
+<div class="game-wrap">
 
-            <div class="players">
-                <div class="player {% if user.id == room.player1.id %}current-user{% endif %}">
-                    {% trans "Waiting..." as waiting_text %}
-                    👤 {{ room.player1.username|default:waiting_text }}
-                    {% if user.id == room.player1.id %}
-                        <br><small>👑 {% trans "That's you!" %}</small>
-                    {% endif %}
-                </div>
-
-                <div style="font-size: 24px; color: #333;">⚔️ VS ⚔️</div>
-
-                <div class="player {% if user.id == room.player2.id %}current-user{% endif %}">
-                    👤 {{ room.player2.username|default:waiting_text }}
-                    {% if user.id == room.player2.id %}
-                        <br><small>👑 {% trans "That's you!" %}</small>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        {% if room.is_finished %}
-            {% if room.winner_name == user.username %}
-                <div class="game-finished winner">
-                    🎉 {% trans "Congratulations! You won!" %}
-                    <br><small>{% trans "You solved the task first!" %}</small>
-                    <br><br>
-                    <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
-                        🎮 {% trans "New Match" %}
-                    </a>
-                </div>
-            {% else %}
-                <div class="game-finished loser">
-                    😔 {% trans "Game over. Winner:" %} {{ room.winner_name }}
-                    <br><small>{% trans "Better luck next time!" %}</small>
-                    <br><br>
-                    <a href="http://match.codebattle.local:8001/match/hub/" class="button new-match-btn">
-                        🎮 {% trans "New Match" %}
-                    </a>
-                </div>
-            {% endif %}
-        {% endif %}
-
-        <div class="game-container">
-            <div class="panel">
-                <h2>📝 {{ room.task.title }}</h2>
-                <p>{{ room.task.description|linebreaks }}</p>
-                <hr>
-                <h4>{% trans "Examples:" %}</h4>
-                {% if room.task.tests %}
-                    {% for test in room.task.tests %}
-                        <div style="background: #111213; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                            <strong>{% trans "Input:" %}</strong> <code>{{ test.variables }}</code><br>
-                            <strong>{% trans "Expected result:" %}</strong> <code>{{ test.expected }}</code>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-
-            <div class="panel">
-                <h3>💻 {% trans "Your Solution" %}</h3>
-
-                {% if room.is_finished %}
-                    <p style="color: #6c757d; background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                        ⚠️ {% trans "Game finished. Code is locked." %}
-                    </p>
-                    
-                    <textarea disabled rows="12" cols="70">{{ room.task.initial_code }}</textarea>
-                    
-                {% else %}
-                    <form method="post" id="solution-form">
-                        {% csrf_token %}
-
-                        <textarea name="code" rows="12" cols="70" id="code-editor">{{ room.task.initial_code }}</textarea>
-
-                        <br><br>
-
-                        <button type="submit" name="submit_solution" class="button">
-                            🚀 {% trans "Submit Solution" %}
-                        </button>
-
-                        <button type="submit" name="leave" class="button leave-btn">
-                            🚪 {% trans "Leave Room" %}
-                        </button>
-                    </form>
-                {% endif %}
-
-                {% if result %}
-                    <div class="result-panel">
-                        {% if result.error %}
-                            <div style="color: #dc3545; background: #f8d7da; padding: 15px; border-radius: 5px;">
-                                <strong>❌ {% trans "Error:" %}</strong>
-                                <pre style="margin: 10px 0 0 0; white-space: pre-wrap;">{{ result.error }}</pre>
-                            </div>
-                        {% else %}
-                            <h4>{% trans "Test Results:" %}</h4>
-
-                            {% for r in result.results %}
-                                <div class="test-result {% if r.passed %}test-passed{% else %}test-failed{% endif %}">
-                                    {% if r.passed %}
-                                        ✅ <strong>{% trans "Test passed" %}</strong>
-                                    {% else %}
-                                        ❌ <strong>{% trans "Test failed" %}</strong>
-                                    {% endif %}
-                                    <br>
-                                    <small>
-                                        {% trans "Input:" %} <code>{{ r.input }}</code> |
-                                        {% trans "Your output:" %} <code>{{ r.output }}</code> |
-                                        {% trans "Expected:" %} <code>{{ r.expected }}</code>
-                                    </small>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+  <!-- Header -->
+  <header class="game-header">
+    <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;font-weight:600;flex-shrink:0;">
+      <span style="color:var(--accent-text);">⚡</span><span>CB</span>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding-left:14px;border-left:1px solid var(--border);margin-left:6px;flex-shrink:0;">
+      {{ match_id }} · ranked
     </div>
 
-    <script>
-        const matchId = "{{ match_id }}";
-        const myUsername = "{{ user.username }}";
-        let gameOver = {{ room.is_finished|yesno:"true,false" }};  // Сразу знаем статус
-        let checkInterval = null;
+    <!-- Player 1 -->
+    <div class="player-card" style="margin-left:auto;">
+      <div style="width:42px;height:42px;" class="avatar-initials{% if room.player1.is_authenticated %} online{% endif %}">
+        <span style="font-size:15px;">{{ room.player1.username|slice:":2"|upper }}</span>
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;">{{ room.player1.username }}</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
+          <span class="dot" style="background:var(--warning);"></span> coding
+        </div>
+      </div>
+    </div>
 
-        // Функция проверки статуса игры
-        async function checkGameStatus() {
-            if (gameOver) {
-                // Игра окончена - останавливаем проверку
-                if (checkInterval) {
-                    clearInterval(checkInterval);
-                    checkInterval = null;
-                    console.log('Игра завершена. Остановлена проверка статуса.');
-                }
-                return;
-            }
+    <!-- Timer / VS -->
+    <div style="text-align:center;padding:0 14px;flex-shrink:0;">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;">VS</div>
+      <div id="timer" style="font-family:var(--font-mono);font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-top:2px;">10:00</div>
+    </div>
 
-            try {
-                const res = await fetch(`/game/status/${matchId}/`, {
-                    credentials: 'include'  // Отправляем cookies
-                });
-                
-                if (!res.ok) {
-                    console.error('Ошибка получения статуса:', res.status);
-                    return;
-                }
-                
-                const data = await res.json();
+    <!-- Player 2 -->
+    <div class="player-card right" style="margin-right:auto;">
+      <div style="width:42px;height:42px;" class="avatar-initials">
+        <span style="font-size:15px;">{{ room.player2.username|slice:":2"|upper }}</span>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;">{{ room.player2.username }}</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);">
+          <span class="dot" style="background:var(--accent);"></span> online
+        </div>
+      </div>
+    </div>
 
-                if (data.is_finished && !gameOver) {
-                    gameOver = true;
-                    console.log('Игра завершена! Перезагрузка страницы...');
-                    
-                    // Останавливаем проверку
-                    if (checkInterval) {
-                        clearInterval(checkInterval);
-                        checkInterval = null;
-                    }
-                    
-                    // Перезагружаем страницу ОДИН РАЗ
-                    location.reload();
-                }
-            } catch (error) {
-                console.error('Ошибка проверки статуса:', error);
-            }
-        }
+    <form method="POST">
+      {% csrf_token %}
+      <button name="leave" type="submit" class="btn btn-ghost btn-sm" style="margin-left:8px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        {% trans "Forfeit" %}
+      </button>
+    </form>
+  </header>
 
-        // Запускаем проверку только если игра НЕ завершена
-        if (!gameOver) {
-            console.log('Игра в процессе. Запуск проверки статуса каждые 3 секунды...');
-            checkInterval = setInterval(checkGameStatus, 3000);
-        } else {
-            console.log('Игра уже завершена. Проверка статуса не требуется.');
-        }
+  <!-- Win/loss banner (shown if finished) -->
+  {% if room.is_finished %}
+  <div style="padding:20px 24px;{% if room.winner_name == user.username %}background:oklch(0.78 0.16 150/0.08);border-bottom:1px solid oklch(0.78 0.16 150/0.3);{% else %}background:oklch(0.68 0.22 25/0.08);border-bottom:1px solid oklch(0.68 0.22 25/0.3);{% endif %}text-align:center;" class="slide-up">
+    <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;{% if room.winner_name == user.username %}color:var(--success);{% else %}color:var(--danger);{% endif %}margin-bottom:6px;">
+      {% if room.winner_name == user.username %}{% trans "Victory" %}{% else %}{% trans "Defeat" %}{% endif %}
+    </div>
+    <div style="font-size:24px;font-weight:700;letter-spacing:-0.02em;">
+      {% if room.winner_name == user.username %}{% trans "You won!" %}{% else %}{% trans "You lost" %}{% endif %}
+    </div>
+    <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim);margin-top:8px;">
+      {% blocktrans with winner=room.winner_name %}Winner: {{ winner }}{% endblocktrans %}
+    </div>
+    <a href="http://match.codebattle.local:8001/match/hub/" class="btn btn-primary" style="margin-top:16px;">
+      {% trans "Back to Arena" %}
+    </a>
+  </div>
+  {% endif %}
 
-        // Очистка при уходе со страницы
-        window.addEventListener('beforeunload', () => {
-            if (checkInterval) {
-                clearInterval(checkInterval);
-            }
-        });
+  <!-- 50/50 panels -->
+  <div class="game-panels">
 
-        // Блокировка повторной отправки формы
-        const form = document.getElementById('solution-form');
-        if (form) {
-            form.addEventListener('submit', function() {
-                const submitBtn = this.querySelector('button[name="submit_solution"]');
-                if (submitBtn) {
-                    submitBtn.textContent = '⏳ Проверка...';
-                    // Не делаем disabled — иначе name не отправится!
-                    // Вместо этого просто блокируем повторный сабмит:
-                    form.addEventListener('submit', e => e.preventDefault());
-                }
-            });
-        }
-    </script>
+    <!-- Task panel -->
+    <div class="task-panel">
+      <div class="panel-tabs">
+        <button class="tab-btn active" onclick="switchTab('task',this)">{% trans "task" %}</button>
+        <button class="tab-btn" onclick="switchTab('tests',this)">{% trans "tests" %}</button>
+        <span class="spacer"></span>
+        <span class="badge badge-success">Easy</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">#{{ room.task.id }}</span>
+      </div>
+
+      <div class="panel-body" id="tab-task">
+        <h2 style="font-size:22px;font-weight:600;margin:0 0 14px;letter-spacing:-0.02em;">{{ room.task.title }}</h2>
+        <div style="color:var(--text-dim);line-height:1.7;font-size:13.5px;white-space:pre-wrap;">{{ room.task.description }}</div>
+
+        {% if room.task.tests %}
+        <div style="margin-top:24px;">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">{% trans "Examples" %}</div>
+          {% for test in room.task.tests %}
+          <div style="background:var(--surface-1);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 14px;font-family:var(--font-mono);font-size:12px;margin-bottom:8px;">
+            <div style="color:var(--text-muted);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">{% trans "Example" %} {{ forloop.counter }}</div>
+            <div style="color:var(--text-dim);">{{ test.variables }}</div>
+            <div style="color:var(--accent-text);">→ {{ test.expected }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="panel-body" id="tab-tests" style="display:none;">
+        {% if result %}
+          {% if result.error %}
+          <div style="background:var(--danger-soft);border:1px solid oklch(0.68 0.22 25/0.25);border-radius:var(--r-md);padding:14px;font-family:var(--font-mono);font-size:12px;color:var(--danger);">
+            <div style="margin-bottom:6px;font-weight:600;">{% trans "Error" %}</div>
+            <pre style="margin:0;white-space:pre-wrap;font-size:11px;">{{ result.error }}</pre>
+          </div>
+          {% else %}
+            {% for r in result.results %}
+            <div class="test-item {% if r.passed %}passed{% else %}failed{% endif %}">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <span style="width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;{% if r.passed %}background:var(--success-soft);color:var(--success);{% else %}background:var(--danger-soft);color:var(--danger);{% endif %}">
+                  {% if r.passed %}✓{% else %}✗{% endif %}
+                </span>
+                <span style="font-weight:600;">test_{{ forloop.counter }}</span>
+                <span class="spacer"></span>
+                <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;{% if r.passed %}color:var(--success);{% else %}color:var(--danger);{% endif %}">
+                  {% if r.passed %}{% trans "passed" %}{% else %}{% trans "failed" %}{% endif %}
+                </span>
+              </div>
+              <div style="color:var(--text-dim);padding-left:28px;">
+                <div><span style="color:var(--text-muted);">in: </span>{{ r.input }}</div>
+                <div><span style="color:var(--text-muted);">expected: </span>{{ r.expected }}</div>
+                {% if not r.passed %}
+                <div style="color:var(--danger);"><span style="color:var(--text-muted);">got: </span>{{ r.output }}</div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          {% endif %}
+        {% else %}
+        <div style="text-align:center;padding:40px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;">
+          {% trans "submit your code to run tests →" %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Editor panel -->
+    <div class="editor-panel">
+      <div class="panel-tabs" style="background:var(--surface-0);">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--accent-text);">●</span>
+          solution.py
+        </span>
+        <span class="spacer"></span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-faint);" id="line-count">3 lines · python 3.11</span>
+      </div>
+
+      <form method="POST" style="display:flex;flex-direction:column;flex:1;min-height:0;" id="code-form">
+        {% csrf_token %}
+        <div class="code-editor-wrap">
+          <div class="line-nums" id="line-nums">1</div>
+          <textarea
+            name="code"
+            id="code-editor"
+            class="code-area"
+            spellcheck="false"
+            {% if room.is_finished %}disabled{% endif %}
+          >{{ room.task.initial_code }}</textarea>
+        </div>
+
+        {% if result and not result.error %}
+        <div class="results-strip">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;">
+            {% trans "Test results" %} · {{ result.results|length }} {% trans "tests" %}
+          </div>
+          {% for r in result.results %}
+          <div style="display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:12px;padding:4px 0;">
+            <span style="{% if r.passed %}color:var(--success);{% else %}color:var(--danger);{% endif %}font-weight:600;">
+              {% if r.passed %}✓{% else %}✗{% endif %}
+            </span>
+            <span style="color:var(--text-dim);">test_{{ forloop.counter }}</span>
+            <span class="spacer"></span>
+            <span style="{% if r.passed %}color:var(--success);{% else %}color:var(--danger);{% endif %}font-size:10px;text-transform:uppercase;letter-spacing:0.06em;">
+              {% if r.passed %}passed{% else %}failed{% endif %}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="editor-toolbar">
+          <button type="button" class="btn btn-secondary btn-sm">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8 5v14l11-7z"/></svg>
+            {% trans "Run" %}
+          </button>
+          <span class="spacer"></span>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-faint);">⌘ + ↵ {% trans "to submit" %}</span>
+          <button type="submit" name="submit_solution" class="btn btn-primary" style="min-width:120px;" {% if room.is_finished %}disabled{% endif %}>
+            {% trans "Submit" %}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(name, btn) {
+  document.getElementById('tab-task').style.display = name === 'task' ? 'block' : 'none';
+  document.getElementById('tab-tests').style.display = name === 'tests' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Line numbers
+const editor = document.getElementById('code-editor');
+const lineNums = document.getElementById('line-nums');
+const lineCount = document.getElementById('line-count');
+
+function updateLines() {
+  const lines = editor.value.split('\n');
+  lineNums.innerHTML = lines.map((_,i) => `<div>${i+1}</div>`).join('');
+  lineCount.textContent = `${lines.length} lines · python 3.11`;
+}
+
+if(editor) {
+  editor.addEventListener('input', updateLines);
+  editor.addEventListener('keydown', (e) => {
+    if(e.key === 'Tab') { e.preventDefault(); const s=editor.selectionStart; editor.value=editor.value.slice(0,s)+'    '+editor.value.slice(editor.selectionEnd); editor.selectionStart=editor.selectionEnd=s+4; updateLines(); }
+    if((e.metaKey||e.ctrlKey) && e.key === 'Enter') { document.querySelector('[name=submit_solution]').click(); }
+  });
+  updateLines();
+}
+
+// Timer
+let seconds = 600;
+const timerEl = document.getElementById('timer');
+{% if not room.is_finished %}
+const timerInterval = setInterval(() => {
+  seconds = Math.max(0, seconds - 1);
+  const mm = String(Math.floor(seconds/60)).padStart(2,'0');
+  const ss = String(seconds%60).padStart(2,'0');
+  timerEl.textContent = `${mm}:${ss}`;
+  if(seconds < 60) timerEl.style.color = 'var(--danger)';
+  if(seconds === 0) clearInterval(timerInterval);
+}, 1000);
+
+// Poll for opponent win
+const matchId = "{{ match_id }}";
+setInterval(async () => {
+  try {
+    const r = await fetch(`/game/${matchId}/result/`);
+    const data = await r.json();
+    if(data.is_finished) location.reload();
+  } catch(e) {}
+}, 3000);
+{% endif %}
+</script>
 </body>
 </html>
